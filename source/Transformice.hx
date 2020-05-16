@@ -83,6 +83,7 @@ class Transformice extends Sprite
 		return new Mice(x, y);
 	}
 
+
 	private function processMiceMovement(mice:Mice, speed:Float) {
 		if (mice.runningLeft || mice.runningRight) {
 			if (mice.jumping) {
@@ -114,62 +115,63 @@ class Transformice extends Sprite
 
 
 	private function stage_onFrameEnter(event: Event): Void 
-	{
-		var difference:Float = flash.Lib.getTimer() - lastFrameTime;
-		if(difference > 2000) {
-			difference = 2000;
-		}
-		var sec:Float = difference / 1000;
-		lastFrameTime = flash.Lib.getTimer();
-		playableFrames += sec;
-		this.passedTime += sec;
-		var rate = 0.03332 + Math.random() * 1.0e-6;
-		while(playableFrames > rate) {
-			playableFrames = playableFrames - rate;
-			this.physicWorld.step(rate, 10, 10);
-			this.processMiceMovement(this.player.mice, 1);
-		}
-		var _loc26_ = 0.0;
-		if(playableFrames > 0.003 + Math.random() * 1.0e-6) {
-			this.physicWorld.step(playableFrames, 10, 10);
-			_loc26_ = playableFrames / rate;
-
-			playableFrames = 0;
-		}
-
-		var body:B2Body = this.physicWorld.getBodyList();
-		while(body != null) {
-			if (body.m_xf.position.x > 50 || body.m_xf.position.y > 50) {
-				this.physicWorld.destroyBody(body);
+		{
+			var difference:Float = flash.Lib.getTimer() - lastFrameTime;
+			if(difference > 2000) {
+				difference = 2000;
 			}
-			var userData = cast(body.getUserData(), DisplayObject);
-			if(Std.is(userData, Mice)) {
-				var mice = cast(userData, Mice);
-				mice.x = body.m_xf.position.x * 30;
-				mice.y = body.m_xf.position.y * 30;
-				if (mice != this.player.mice) {
-					if(0 < _loc26_) {
-						processMiceMovement(mice, _loc26_);
+			var sec:Float = difference / 1000;
+			lastFrameTime = flash.Lib.getTimer();
+			playableFrames += sec;
+			this.passedTime += sec;
+			var rate = 0.03332 + Math.random() * 1.0e-6;
+			while(playableFrames > rate) {
+				playableFrames = playableFrames - rate;
+				this.physicWorld.step(rate, 10, 10);
+				this.processMiceMovement(this.player.mice, 1);
+			}
+			var _loc26_ = 0.0;
+			if(playableFrames > 0.003 + Math.random() * 1.0e-6) {
+				this.physicWorld.step(playableFrames, 10, 10);
+				_loc26_ = playableFrames / rate;
+				processMiceMovement(this.player.mice, _loc26_);
+				playableFrames = 0;
+			}
+			var body:B2Body = this.physicWorld.getBodyList();
+			while(body != null) {
+				if (body.m_xf.position.x > 50 || body.m_xf.position.y > 50) {
+					this.physicWorld.destroyBody(body);
+				}
+				var userData = cast(body.getUserData(), DisplayObject);
+				if(Std.is(userData, Mice)) {
+					var mice = cast(userData, Mice);
+					mice.x = body.m_xf.position.x * 30;
+					mice.y = body.m_xf.position.y * 30;
+					if (mice != this.player.mice) {
+						if(0 < _loc26_) {
+							processMiceMovement(mice, _loc26_);
+						}
 					}
 				}
+				body = body.m_next;
 			}
-			body = body.m_next;
-		}
-		if (player.mice.jumping) {
-			if (player.mice.lastYVelocity > 0) {
-				if(player.mice.lastYVelocity > player.mice.physics.m_linearVelocity.y) {
-					player.mice.lastYVelocity = -1;
-					this.player.jumpAvailableTime = flash.Lib.getTimer();
-					player.mice.stopJump();
+			if (player.mice.jumping) {
+				if (player.mice.lastYVelocity > 0) {
+					if(player.mice.lastYVelocity > player.mice.physics.m_linearVelocity.y) {
+						player.mice.lastYVelocity = -1;
+						this.player.jumpAvailableTime = flash.Lib.getTimer();
+						player.mice.stopJump();
+					} else {
+						player.mice.lastYVelocity = player.mice.physics.m_linearVelocity.y;
+					}
 				} else {
 					player.mice.lastYVelocity = player.mice.physics.m_linearVelocity.y;
 				}
-			} else {
-				player.mice.lastYVelocity = player.mice.physics.m_linearVelocity.y;
 			}
+			//this.physicWorld.drawDebugData();
+	
 		}
-	}
-
+	
 
 	/**
 	* Center the world
