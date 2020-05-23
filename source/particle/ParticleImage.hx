@@ -1,6 +1,5 @@
 package particle;
 
-import openfl.geom.Matrix;
 import openfl.geom.Rectangle;
 import openfl.display.Sprite;
 import openfl.display.MovieClip;
@@ -20,16 +19,13 @@ class ParticleImage
 	public var stopImage: Int;
 	public var label: String;
 
-	public function new(isDrawn: Bool = true) {
-		this.drawn = isDrawn;
-	}
+	public function new() {}
 
-	public function render(x: Float = 0, y: Float = 0): Void {
+	public function render(): Void {
 		if (this.clipTarget == null)
 			return;
 		if (!this.repeat)
-			this.clipTarget.gotoAndStop(this.stopImage);
-		this.drawn = true;
+			this.clipTarget.gotoAndPlay(this.clipTarget.totalFrames);
 		this.clipBase = new Sprite();
 		this.clipBase.addChild(this.clipTarget);
 		var clipRect: Rectangle = this.clipTarget.getRect(this.clipTarget);
