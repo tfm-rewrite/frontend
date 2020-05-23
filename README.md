@@ -1,8 +1,8 @@
 # transformice
 Porting tfm to html5
 
-Haxe Openfl project
-https://i.imgur.com/qoSXp4S.png
+## Latest Demo
+https://tfm-rewrite.github.io/frontend/
 
-Demo:
-https://www.supermice.net/html5/bin/index.html
+## Old Version (Old Graphic Performance)
+https://tfm-rewrite.github.io/frontend/oldver/
