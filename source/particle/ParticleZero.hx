@@ -15,19 +15,16 @@ class ParticleZero
 	public var clipTarget: MovieClip;
 	public var currentFrame: Int = 0;
 
-	public function new(clip: MovieClip, draw: Bool = true, loop: Bool = false): Void {
+	public function new(clip: MovieClip, loop: Bool = false): Void {
 		if (clip == null) return;
-		if (!loop) clip.stopAllMovieClips();
 		this.totalFrames = clip.totalFrames;
 		this.listImages = new Array();
 		this.clipTarget = clip;
 		if (loop) clip.gotoAndPlay(1);
 		for (i in 0...this.totalFrames) {
-			var img: ParticleImage = new ParticleImage(!loop ? draw : true);
+			var img: ParticleImage = new ParticleImage();
 			img.clipTarget = clip;
 			img.repeat = loop;
-			if (draw)
-				img.render();
 			this.listImages[i] = img;
 		}
 		if (loop) {
@@ -37,7 +34,6 @@ class ParticleZero
 	}
 
 	public static function onEnterFrame(event: Event): Void {
-		
 		for (i in 0...ParticleZero.zeroList.length) {
 			var zero: ParticleZero = ParticleZero.zeroList[i];
 			if (zero.listImages.length == zero.currentFrame) {
