@@ -1,5 +1,7 @@
 package;
 
+import js.html.Element;
+import js.Browser;
 import openfl.utils.Object;
 import haxe.Timer;
 import interfaces.Login;
@@ -33,8 +35,9 @@ class Transformice extends Sprite
 	public var playableFrames:Float = 0;
 	public var passedTime:Float = 0;
 	public var maxMiceSpeed:Float = 3.45 + Math.random() * 1.0e-6;
-
+	public var counterElement: Element;
 	private var loginInterface:Interface;
+	private var miceCount: Int = 0;
 
 	public function new()
 	{
@@ -43,7 +46,15 @@ class Transformice extends Sprite
 
 		stage.frameRate = 59.99;
 		Transformice.instance = this;
-		
+		counterElement = Browser.document.createElement("div");
+		counterElement.id = 'miceCount';
+		counterElement.style.position = 'absolute';
+		counterElement.style.color = '#fff';
+		counterElement.style.fontFamily = 'Verdana';
+		counterElement.style.fontSize = '20px';
+		counterElement.style.margin = 'auto';
+		counterElement.style.top = '50px';
+		Browser.document.body.appendChild(counterElement);
 		this.physicWorld = new B2World(new B2Vec2(0, 10), true);
 		this.world = new Sprite();
 		this.world.x = Lib.application.window.width/2-400;
@@ -80,6 +91,7 @@ class Transformice extends Sprite
 	}
 
 	private function createMice(x: Float, y: Float) {
+		miceCount++;
 		return new Mice(x, y);
 	}
 
@@ -116,6 +128,7 @@ class Transformice extends Sprite
 
 	private function stage_onFrameEnter(event: Event): Void 
 		{
+			counterElement.innerHTML = 'Mice : $miceCount';
 			var difference:Float = flash.Lib.getTimer() - lastFrameTime;
 			if(difference > 2000) {
 				difference = 2000;
