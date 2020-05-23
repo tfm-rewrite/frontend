@@ -1,9 +1,5 @@
 package particle;
 
-import openfl.display.MovieClip;
-import openfl.geom.Point;
-import openfl.geom.Rectangle;
-import flash.events.Event;
 import flash.display.BitmapData;
 import openfl.display.Bitmap;
 
@@ -43,17 +39,15 @@ class ParticleAnim extends Bitmap {
 			if (this.repeat) {
 				this.currentIndex = this.startFrame;
 				this.stopIndex = this.endFrame;
-			} else return;
+			} else {};
 		}
 		this.currentImage = this.zero.listImages[this.currentIndex];
 		if (this.currentImage == null) {
 			this.currentIndex++;
 			return;
 		};
-		if (!this.currentImage.drawn) this.currentImage.render();
-		this.bitmapData = new BitmapData(Math.ceil(this.width), Math.ceil(this.height), true, 0);
-		if (this.currentImage.bitmapData != null)
-			this.bitmapData = this.currentImage.bitmapData;
+		this.currentImage.render();
+		this.bitmapData = this.currentImage.bitmapData;
 		this.x = this.currentImage.x;
 		this.y = this.currentImage.y;
 		this.currentIndex++;
