@@ -4917,6 +4917,7 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 	,__properties__: $extend(openfl_display_DisplayObjectContainer.prototype.__properties__,{get_graphics:"get_graphics",set_buttonMode:"set_buttonMode",get_buttonMode:"get_buttonMode"})
 });
 var Transformice = function() {
+	this.miceCount = 0;
 	this.maxMiceSpeed = 3.45 + Math.random() * 1.0e-6;
 	this.passedTime = 0;
 	this.playableFrames = 0;
@@ -4924,6 +4925,15 @@ var Transformice = function() {
 	openfl_display_Sprite.call(this);
 	this.stage.set_frameRate(59.99);
 	Transformice.instance = this;
+	this.counterElement = window.document.createElement("div");
+	this.counterElement.id = "miceCount";
+	this.counterElement.style.position = "absolute";
+	this.counterElement.style.color = "#fff";
+	this.counterElement.style.fontFamily = "Verdana";
+	this.counterElement.style.fontSize = "20px";
+	this.counterElement.style.margin = "auto";
+	this.counterElement.style.top = "50px";
+	window.document.body.appendChild(this.counterElement);
 	this.physicWorld = new box2D_dynamics_B2World(new box2D_common_math_B2Vec2(0,10),true);
 	this.world = new openfl_display_Sprite();
 	this.world.set_x(openfl_Lib.get_application().__window.__width / 2 - 400);
@@ -4961,8 +4971,11 @@ Transformice.prototype = $extend(openfl_display_Sprite.prototype,{
 	,playableFrames: null
 	,passedTime: null
 	,maxMiceSpeed: null
+	,counterElement: null
 	,loginInterface: null
+	,miceCount: null
 	,createMice: function(x,y) {
+		this.miceCount++;
 		return new Mice(x,y);
 	}
 	,processMiceMovement: function(mice,speed) {
@@ -4994,6 +5007,7 @@ Transformice.prototype = $extend(openfl_display_Sprite.prototype,{
 		}
 	}
 	,stage_onFrameEnter: function(event) {
+		this.counterElement.innerHTML = "Mice : " + this.miceCount;
 		var difference = openfl_Lib.getTimer() - this.lastFrameTime;
 		if(difference > 2000) {
 			difference = 2000;
@@ -85907,13 +85921,10 @@ particle_ParticleAnim.prototype = $extend(openfl_display_Bitmap.prototype,{
 			if(this.repeat) {
 				this.currentIndex = this.startFrame;
 				this.stopIndex = this.endFrame;
-			} else {
-				haxe_Log.trace("i'm not ok",{ fileName : "source/particle/ParticleAnim.hx", lineNumber : 46, className : "particle.ParticleAnim", methodName : "render"});
 			}
 		}
 		this.currentImage = this.zero.listImages[this.currentIndex];
 		if(this.currentImage == null) {
-			haxe_Log.trace("i'm not too ok",{ fileName : "source/particle/ParticleAnim.hx", lineNumber : 50, className : "particle.ParticleAnim", methodName : "render", customParams : [this.currentIndex]});
 			this.currentIndex++;
 			return;
 		}
@@ -86004,7 +86015,6 @@ var particle_ParticleZero = function(clip,loop) {
 		img.repeat = loop;
 		this.listImages[i] = img;
 	}
-	haxe_Log.trace(this.listImages.length,{ fileName : "source/particle/ParticleZero.hx", lineNumber : 31, className : "particle.ParticleZero", methodName : "new"});
 	if(loop) {
 		particle_ParticleZero.zeroList.push(this);
 		Transformice.instance.addEventListener("enterFrame",particle_ParticleZero.onEnterFrame);
