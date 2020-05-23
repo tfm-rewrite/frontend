@@ -1,8 +1,4 @@
 import openfl.events.Event;
-import particle.ParticleImage;
-import openfl.geom.Rectangle;
-import openfl.display.BitmapData;
-import openfl.display.Bitmap;
 import particle.ParticleZero;
 import particle.ParticleAnim;
 import box2D.collision.shapes.B2MassData;
@@ -11,9 +7,6 @@ import box2D.dynamics.B2FixtureDef;
 import box2D.collision.shapes.B2CircleShape;
 import box2D.dynamics.B2BodyDef;
 import box2D.dynamics.B2Body;
-import flash.filters.DropShadowFilter;
-import flash.geom.ColorTransform;
-import flash.utils.AssetType;
 import flash.display.Sprite;
 import flash.display.MovieClip;
 import flash.Assets;
@@ -151,8 +144,6 @@ class Mice extends Sprite
 		this.changeAnimation();
 	}
 
-
-
 	public function changeAnimation(useCurrentClip: Bool = false, stopDuck: Bool = false): Void {
 		var anim = "AnimStatique";
 		if (this.runningLeft || this.runningRight || this.jumping) 
@@ -167,21 +158,21 @@ class Mice extends Sprite
 			this.currentClip.mask = null;
 		}
 		if (!this.turnedRight && this.scaleX > 0 || this.turnedRight && this.scaleX < 0)
-			this.scaleX -= this.scaleX * 2;
-		this.zero = new ParticleZero(this.currentClip, false, true);
+			this.scaleX = -(this.scaleX);
+		this.zero = new ParticleZero(this.currentClip, true);
 		if (this.anim == null)
-			this.anim = new ParticleAnim(this.zero, true, 100, 70);
-		else
-			this.anim.zero = this.zero;
-		var x = Std.random(this.currentClip.totalFrames);
+			this.anim = new ParticleAnim(this.zero, false, 100, 70);
+		else {
+			this.anim.bitmapData = null;
+			this.anim = new ParticleAnim(this.zero, false, 100, 70);
+		}
+		this.anim.setStartStop();
 		this.anim.render();
 		this.addEventListener(Event.ENTER_FRAME, this.onEnterFrame);
-		this.removeChildAt(0);
 		this.addChildAt(this.anim, 0);
 	}
 
 	private function onEnterFrame(event: Event) {
-		trace("I'm HERE");
 		this.anim.render();
 		if (this.anim.currentImage != null) {
 			this.anim.bitmapData = this.anim.currentImage.bitmapData; 
@@ -211,7 +202,7 @@ class Mice extends Sprite
 		    this.scaleX = -(this.scaleX);
 		if (this.turnedRight && this.scaleX < 0)
 		    this.scaleX = -(this.scaleX);
-		this.zero = new ParticleZero(animation, true, !this.jumping && !this.ducking);
+		this.zero = new ParticleZero(animation, !this.jumping && !this.ducking);
 		if (this.anim == null) 
 			this.anim = new ParticleAnim(this.zero, !this.jumping && !this.ducking);
 		else
