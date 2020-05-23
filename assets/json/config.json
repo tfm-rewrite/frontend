@@ -1,0 +1,10 @@
+{
+	"name": "Transformice",
+	"period": "1.",
+	"version": 1,
+	"url": "http://127.0.0.1:3000",
+	"imagesDirectory": "assets/images",
+	"status": "beta",
+	"allowRegister": false,
+	"background": "beach"
+}
