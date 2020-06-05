@@ -11,6 +11,8 @@ import flash.display.Sprite;
 import flash.display.MovieClip;
 import flash.Assets;
 import haxe.ds.Map;
+import flash.display.Bitmap;
+import flash.display.BitmapData;
 
 class Mice extends Sprite
 {
@@ -96,27 +98,16 @@ class Mice extends Sprite
 			this.ducking = true;
 			this.runningLeft = this.runningRight = false;
 			this.changeAnimation();
-			if (!this.jumping) {
-				var clip = this.currentClip;
-				clip.stop();
-				clip.play();
-				clip.gotoAndPlay(0);
-				clip.gotoAndStop(6);
-				this.changeAnimation(true);
-			}
+			if (!this.jumping)
+				this.anim.gotoAndStop(6);
 		}
 	}
 
 	public function stopDuck() {
 		if (this.ducking) {
 			this.ducking = false;
-			if (!this.jumping) {
-				var clip = this.currentClip;
-				clip.stop();
-				clip.play();
-				clip.gotoAndPlay(7);
-				clip.gotoAndStop(10);
-				this.changeAnimation(true);
+			if (!this.jumping) { 
+				this.anim.gotoAndPlay(10);
 			}
 		}
 	}
@@ -155,33 +146,25 @@ class Mice extends Sprite
 			this.currentClip = animations.get(anim);
 			if (this.currentClip == null) 
 				this.currentClip = Animations.getAnimation("animations", this.furId, anim, this.furId == 1 ? [this.furColor] : null);
-			this.currentClip.mask = null;
 		}
+		this.currentClip.mask = null;
 		if (!this.turnedRight && this.scaleX > 0 || this.turnedRight && this.scaleX < 0)
 			this.scaleX = -(this.scaleX);
 		this.zero = new ParticleZero(this.currentClip, true);
 		if (this.anim == null)
-			this.anim = new ParticleAnim(this.zero, false, 100, 70);
+			this.anim = new ParticleAnim(this.zero, true, 100, 70);
 		else {
 			this.anim.bitmapData = null;
-			this.anim = new ParticleAnim(this.zero, false, 100, 70);
+			this.anim = new ParticleAnim(this.zero, true, 100, 70);
 		}
-		this.anim.setStartStop();
 		this.anim.render();
-		this.addEventListener(Event.ENTER_FRAME, this.onEnterFrame);
+		
+		this.removeChildAt(0);
 		this.addChildAt(this.anim, 0);
 	}
 
-	private function onEnterFrame(event: Event) {
-		this.anim.render();
-		if (this.anim.currentImage != null) {
-			this.anim.bitmapData = this.anim.currentImage.bitmapData; 
-		}
 
-	}
-
-	private function setAnim() {
-	
+	private function setAnim() { // Deprecated	
 		var anim = "AnimStatique";
 		if (this.runningLeft || this.runningRight || this.jumping) {
 		    anim = "AnimCourse";
@@ -202,9 +185,9 @@ class Mice extends Sprite
 		    this.scaleX = -(this.scaleX);
 		if (this.turnedRight && this.scaleX < 0)
 		    this.scaleX = -(this.scaleX);
-		this.zero = new ParticleZero(animation, !this.jumping && !this.ducking);
+		this.zero = new ParticleZero(animation, true);
 		if (this.anim == null) 
-			this.anim = new ParticleAnim(this.zero, !this.jumping && !this.ducking);
+			this.anim = new ParticleAnim(this.zero, true);
 		else
 			this.anim.zero = this.zero;
 		this.anim.render();
