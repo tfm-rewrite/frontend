@@ -42,7 +42,6 @@ class ParticleAnim extends Bitmap {
 	public function gotoAndStop(frame: Int) {
 		if (frame < this.zero.totalFrames) {
 			Transformice.instance.removeEventListener(Event.ENTER_FRAME, this.onEnterFrame);
-			this.repeat = false;
 			this.stopped = true;
 			this.currentImageIndex = frame;
 			this.currentImage = this.zero.listImages[this.currentImageIndex];

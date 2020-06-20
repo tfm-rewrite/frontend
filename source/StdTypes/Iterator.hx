@@ -1,0 +1,8 @@
+package StdTypes;
+
+interface Iterator {
+
+
+	
+
+}

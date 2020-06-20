@@ -1,5 +1,6 @@
 package;
 
+import openfl.utils.Object;
 import openfl.display.Sprite;
 import openfl.geom.Rectangle;
 import openfl.display.Bitmap;
@@ -37,5 +38,12 @@ class Utils
 		var bitmapData = new BitmapData(Math.ceil(rect.width), Math.ceil(rect.height), true, 0);
 		bitmapData.draw(rounded);
 		return bitmapData;
+	}
+
+	public static function iterToArary(iter: Iterator<Object>): Array<Object> {
+		var arr: Array<Object> = new Array<Object>();
+		while (iter.hasNext())
+			arr.push(iter.next());
+		return arr;
 	}
 }

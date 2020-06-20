@@ -98,17 +98,13 @@ class Mice extends Sprite
 			this.ducking = true;
 			this.runningLeft = this.runningRight = false;
 			this.changeAnimation();
-			if (!this.jumping)
-				this.anim.gotoAndStop(6);
 		}
 	}
 
 	public function stopDuck() {
 		if (this.ducking) {
 			this.ducking = false;
-			if (!this.jumping) { 
-				this.anim.gotoAndPlay(10);
-			}
+			
 		}
 	}
 
@@ -157,7 +153,15 @@ class Mice extends Sprite
 			this.anim.bitmapData = null;
 			this.anim = new ParticleAnim(this.zero, true, 100, 70);
 		}
-		this.anim.render();
+		if (this.anim == null) 
+			this.anim = new ParticleAnim(this.zero, true);
+		else
+			this.anim.zero = this.zero;
+
+		if (this.jumping)
+			this.anim.gotoAndStop(Std.random(this.currentClip.totalFrames));
+		else
+			this.anim.render();
 		
 		this.removeChildAt(0);
 		this.addChildAt(this.anim, 0);
@@ -174,11 +178,6 @@ class Mice extends Sprite
 		var animation = animations.get(anim);
 		if (animation == null) 
 			animation = Animations.getAnimation("animations", this.furId, anim, this.furId == 1 ? [this.furColor] : null);
-		if (!this.jumping)
-			animation.gotoAndPlay(0);
-		else 
-			if (animation.isPlaying)
-				animation.gotoAndStop(Std.random(animation.totalFrames));
 		animation.mask = null;
 		this.currentClip = animation;
 		if (!this.turnedRight && this.scaleX > 0)
@@ -190,7 +189,10 @@ class Mice extends Sprite
 			this.anim = new ParticleAnim(this.zero, true);
 		else
 			this.anim.zero = this.zero;
-		this.anim.render();
+		// if (this.jumping)
+		// 	this.anim.gotoAndStop(Std.random(animation.totalFrames));
+		// else
+		// 	this.anim.render();
 		this.removeChildAt(0);
 		this.addChildAt(this.anim, 0);
 	}
