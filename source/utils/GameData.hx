@@ -172,7 +172,7 @@ class GameData {
 			}
 		}
 		var packet: ByteArray = new ByteArray();
-\		packet.writeBytes(settings);
+		packet.writeBytes(settings);
 		packet.writeByte(0xff);
 		packet.writeBytes(grounds);
 		packet.writeByte(0xff);
