@@ -8,6 +8,7 @@ import haxe.ds.Map;
 class Window extends Component
 {
 	@:isVar public var title(get, set): String;
+	public var closable: Bool = false;
 	public var titleField: TextField;
 	public var textField: TextField;
 
@@ -18,6 +19,7 @@ class Window extends Component
 		this.options = options != null ? options : [];
 		this.width = this.options.exists('width') ? this.options.get('width') : 100;
 		this.height = this.options.exists('height') ? this.options.get('height') : 100;
+		this.closable = this.options.exists('closable') && this.options.get('closable') == true;
 		this.width = js.lib.Math.max(100, this.width);
 		this.height = js.lib.Math.max(100, this.height);
 		var borders: Component = new Component('div', [
@@ -43,6 +45,8 @@ class Window extends Component
 		this.textField = text;
 		this.textField.y = 10;
 		this.textField.x = title != '' ? 50 : 10;
+		var closeButton: Button = new Button(new TextField('Close', ['color' => 0xC2C2DA, 'align' => 'center']), this.delete, ['classes' => ['x_btn'], 'width' => this.width, 'x' => this.height - 20, 'y' => 12]);
+		this.element.appendChild(closeButton.element);
 		this.element.appendChild(borders.element);
 		this.element.appendChild(this.textField.element);
 	}

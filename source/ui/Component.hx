@@ -13,6 +13,7 @@ class Component {
 	public var hidden: Bool = false;
 	public var events: Map<String, Function>;
 	public var options: Map<String, Any>;
+	public static var listComponents: Array<Component> = [];
 
 	@:isVar public var classes(get, set): Array<String>;
 	@:isVar public var width(get, set): Int;
@@ -30,8 +31,11 @@ class Component {
 		this.events = this.options.exists('events') ? this.options.get('events') : [];
 		this.classes = this.options.exists('classes') ? this.options.get('classes') : [];
 		this.hidden = this.options.exists('hidden') && this.options.get('hidden') == true;
+		this.element.style.position = 'absolute';
+		this.element.style.zIndex = Std.string(Component.listComponents.length);
 		for (key in this.events.keys())
 			this.element.addEventListener(key.toLowerCase(), this.events.get(key));
+		Component.listComponents.push(this);
 	}
 	
 

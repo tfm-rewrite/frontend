@@ -20,25 +20,22 @@ class Login extends Interface
 
 	private function renderLoginButtons(): Void
 	{
-		var popupWithTitle: Window = new Window(
-			new TextField('Heyoooooo', ['classes' => ['x_text']]), 'Transformice', [
-			'width' => 800,
-			'height' => 200,
-			'draggable' => true,
-		]);
-		popupWithTitle.x = 100;
-		popupWithTitle.y = 200;
-		var popup: Window = new Window(new TextField('Hellooooo', [
-			'classes' => ['x_text']
-		]), '', [
-			'width' => 800,
-			'height' => 200,
-			'draggable' => true,
-		]);
-		popup.x = 200;
-		popup.y = 400;
-		Browser.document.body.appendChild(popupWithTitle.element);
-		Browser.document.body.appendChild(popup.element);
+		var titles = ['', 'Transformice', '', 'HTML5', ''];
+		for (i in 0...5) {
+			var pop: Window = new Window(
+				new TextField('Hiii', ['classes' => ['x_text'], 'color' => 0xfbffb3]),
+				titles[i],
+				[
+					'classes' => ['x_window'],
+					'width' => Math.floor(Math.random()*600),
+					'height' => Math.floor(Math.random()*400),
+					'x' => 150 + (i*2),
+					'y' => 200 * i,
+					'closable' => true
+				]
+			);
+			Browser.document.body.appendChild(pop.element);
+		}
 	}
 
 	private function renderBackground(bg_id: String): Void 

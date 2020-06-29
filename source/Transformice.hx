@@ -42,50 +42,50 @@ class Transformice extends Sprite
 	public function new()
 	{
 		super();
-		stage.frameRate = 59.99;
-		Transformice.instance = this;
-		counterElement = Browser.document.createElement("div");
-		counterElement.id = 'miceCount';
-		counterElement.style.position = 'absolute';
-		counterElement.style.color = '#fff';
-		counterElement.style.fontFamily = 'Verdana';
-		counterElement.style.fontSize = '20px';
-		counterElement.style.margin = 'auto';
-		counterElement.style.top = '50px';
-		Browser.document.body.appendChild(counterElement);
-		this.physicWorld = new B2World(new B2Vec2(0, 10), true);
+		// stage.frameRate = 59.99;
+		// Transformice.instance = this;
+		// counterElement = Browser.document.createElement("div");
+		// counterElement.id = 'miceCount';
+		// counterElement.style.position = 'absolute';
+		// counterElement.style.color = '#fff';
+		// counterElement.style.fontFamily = 'Verdana';
+		// counterElement.style.fontSize = '20px';
+		// counterElement.style.margin = 'auto';
+		// counterElement.style.top = '50px';
+		// Browser.document.body.appendChild(counterElement);
+		// this.physicWorld = new B2World(new B2Vec2(0, 10), true);
 		this.world = new Sprite();
 		this.world.x = Lib.application.window.width/2-400;
 		this.world.y = Lib.application.window.height/2-300;
-		stage.addChild(this.world);
-		// new Config("http://127.0.0.1:3000/assets/json/config.json", function(data: Object, data_string: String) {
-		// 	this.loginInterface = new Login();
-		// 	this.world.addChildAt(this.loginInterface, 0);
-		// });
-		this.addEventListener(Event.ENTER_FRAME, this.stage_onFrameEnter);
-		var dbgDraw:B2DebugDraw = new B2DebugDraw();
-		var dbgSprite:Sprite = new Sprite();
-		this.world.addChild(dbgSprite);
-		dbgDraw.setSprite(dbgSprite);
-		dbgDraw.setDrawScale(30);
-		dbgDraw.setFillAlpha(0.5);
-		dbgDraw.setLineThickness(2.0);
-		dbgDraw.setFlags(B2DebugDraw.e_shapeBit | B2DebugDraw.e_jointBit | B2DebugDraw.e_pairBit);
-		this.physicWorld.setDebugDraw(dbgDraw);
+		// stage.addChild(this.world);
+		new Config("http://127.0.0.1:3000/assets/json/config.json", function(data: Object, data_string: String) {
+			this.loginInterface = new Login();
+			this.world.addChildAt(this.loginInterface, 0);
+		});
+		// this.addEventListener(Event.ENTER_FRAME, this.stage_onFrameEnter);
+		// var dbgDraw:B2DebugDraw = new B2DebugDraw();
+		// var dbgSprite:Sprite = new Sprite();
+		// this.world.addChild(dbgSprite);
+		// dbgDraw.setSprite(dbgSprite);
+		// dbgDraw.setDrawScale(30);
+		// dbgDraw.setFillAlpha(0.5);
+		// dbgDraw.setLineThickness(2.0);
+		// dbgDraw.setFlags(B2DebugDraw.e_shapeBit | B2DebugDraw.e_jointBit | B2DebugDraw.e_pairBit);
+		// this.physicWorld.setDebugDraw(dbgDraw);
 
-		this.createGround(400, 385, 800, 30, "$Sol_Dur");
-		this.createGround(400, 235, 75, 300, "$Sol_Dur");
-		this.createGround(582, 65, 10, 10, "$Sol_Dur");
+		// this.createGround(400, 385, 800, 30, "$Sol_Dur");
+		// this.createGround(400, 235, 75, 300, "$Sol_Dur");
+		// this.createGround(582, 65, 10, 10, "$Sol_Dur");
 
-		var mice = createMice(0, 0);
-	    	this.player = new Player(mice);
+		// var mice = createMice(0, 0);
+	    	// this.player = new Player(mice);
 		
 
-		stage.addEventListener(MouseEvent.MOUSE_DOWN, stage_onMouseDown);
-		stage.addEventListener(MouseEvent.MOUSE_UP, stage_onMouseUp);
-		stage.addEventListener(MouseEvent.CLICK, stage_onMouseClick);
-		stage.addEventListener(KeyboardEvent.KEY_DOWN, stage_onKeyDown);
-		stage.addEventListener(Event.RESIZE, resizeDisplay);
+		// stage.addEventListener(MouseEvent.MOUSE_DOWN, stage_onMouseDown);
+		// stage.addEventListener(MouseEvent.MOUSE_UP, stage_onMouseUp);
+		// stage.addEventListener(MouseEvent.CLICK, stage_onMouseClick);
+		// stage.addEventListener(KeyboardEvent.KEY_DOWN, stage_onKeyDown);
+		// stage.addEventListener(Event.RESIZE, resizeDisplay);
 	}
 
 	private function createMice(x: Float, y: Float) {
