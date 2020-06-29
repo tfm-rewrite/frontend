@@ -1,15 +1,10 @@
 package interfaces;
 
 import js.Browser;
-import js.html.Text;
-import openfl.text.TextFormat;
-import openfl.text.TextField;
-import openfl.filters.BitmapFilterQuality;
-import openfl.filters.BlurFilter;
-import openfl.filters.BitmapFilter;
-import openfl.utils.Dictionary;
 import openfl.display.Sprite;
 import resources.ResourcesImages;
+import ui.Window;
+import ui.TextField;
 
 class Login extends Interface 
 {
@@ -25,30 +20,34 @@ class Login extends Interface
 
 	private function renderLoginButtons(): Void
 	{
-		var x = Browser.document.createElement("div");
-		x.classList.add("window");
-		x.innerHTML = "Test";
-		var y = Browser.document.createElement("div");
-		y.classList.add("borders");
-		var title = Browser.document.createElement("span");
-		title.classList.add("title");
-		title.innerHTML = "Transformice";
-		x.appendChild(title);
-		x.appendChild(y);
-		Browser.document.body.appendChild(x);
+		var popupWithTitle: Window = new Window(
+			new TextField('Heyoooooo', ['classes' => ['x_text']]), 'Transformice', [
+			'width' => 800,
+			'height' => 200,
+			'draggable' => true,
+		]);
+		popupWithTitle.x = 100;
+		popupWithTitle.y = 200;
+		var popup: Window = new Window(new TextField('Hellooooo', [
+			'classes' => ['x_text']
+		]), '', [
+			'width' => 800,
+			'height' => 200,
+			'draggable' => true,
+		]);
+		popup.x = 200;
+		popup.y = 400;
+		Browser.document.body.appendChild(popupWithTitle.element);
+		Browser.document.body.appendChild(popup.element);
 	}
 
 	private function renderBackground(bg_id: String): Void 
 	{
 		var url: String = Config.getValueFrom("config", "url");
 		var imagesDir: String = Config.getValueFrom("config", "imagesDirectory");
-		this.backgroundUrl = '$url/$imagesDir/x_login_screen/x_$bg_id.jpg';
-		var img = ResourcesImages.getRemoteImage(this.backgroundUrl, "", {
-			var x: Dictionary<String, Any> = new Dictionary();
-			x["round"] = 20;
-			x;
-		});
-		addChildAt(img, 0);
+		
+
+		// addChildAt(img, 0);
 	}
 
 	private function renderLoginContainer(): Void
