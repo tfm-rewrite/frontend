@@ -1,14 +1,14 @@
 package;
 
 import js.html.Animation;
-import openfl.Vector;
-import openfl.geom.ColorTransform;
-import openfl.display.Sprite;
+import flash.Vector;
+import flash.geom.ColorTransform;
+import flash.display.Sprite;
 import lime.tools.AssetType;
-import openfl.Assets;
-import openfl.utils.AssetLibrary;
-import openfl.display.MovieClip;
-import openfl.utils.Dictionary;
+import flash.Assets;
+import flash.utils.AssetLibrary;
+import flash.display.MovieClip;
+import flash.utils.Dictionary;
 
 class Animations {
 	public static final NORMAL_FUR_ID:Int = 1;

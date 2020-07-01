@@ -1,4 +1,4 @@
-import openfl.events.Event;
+import flash.events.Event;
 import particle.ParticleZero;
 import particle.ParticleAnim;
 import box2D.collision.shapes.B2MassData;

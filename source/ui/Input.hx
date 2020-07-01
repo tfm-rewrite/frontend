@@ -1,44 +1,35 @@
 package ui;
 
-import js.html.MouseEvent;
-import js.html.Event;
-import haxe.rtti.CType.FunctionArgument;
 import js.Browser;
 import haxe.Constraints.Function;
-import haxe.ds.Map;
-import js.html.Element;
+import js.html.InputElement;
 
-class Component {
-	public var element: Element;
-	public var hidden: Bool = false;
-	public var events: Map<String, Function>;
+class Input {
+	public static var listInputs: Array<Input> = [];
 	public var options: Map<String, Any>;
-	public static var listComponents: Array<Component> = [];
+	public var events: Map<String, Function>;
+	public var element: InputElement;
 
+	@:isVar public var x(get, set): Int;
+	@:isVar public var y(get, set): Int;
 	@:isVar public var classes(get, set): Array<String>;
 	@:isVar public var width(get, set): Int;
 	@:isVar public var height(get, set): Int;
-	@:isVar public var x(get, set): Int;
-	@:isVar public var y(get, set): Int;
 
-	public function new(tagName: String,  options: Map<String, Any> = null) {
-		this.element = Browser.document.createElement(tagName);
+	public function new(options: Map<String, Any> = null) {
+		this.element = Browser.document.createInputElement();
 		this.options = options != null ? options : [];
-		this.width = this.options.exists('width') ? this.options.get('width') : 10;
-		this.height = this.options.exists('height') ? this.options.get('height') : 10;
 		this.x = this.options.exists('x') ? this.options.get('x') : 0;
 		this.y = this.options.exists('y') ? this.options.get('y') : 0;
 		this.events = this.options.exists('events') ? this.options.get('events') : [];
 		this.classes = this.options.exists('classes') ? this.options.get('classes') : [];
-		this.hidden = this.options.exists('hidden') && this.options.get('hidden') == true;
+		this.element.hidden = this.options.exists('hidden') && this.options.get('hidden') == true;
 		this.element.style.position = 'absolute';
-		this.element.style.zIndex = Std.string(Component.listComponents.length);
+		this.element.style.zIndex = Std.string(Component.listComponents.length + Input.listInputs.length);
 		for (key in this.events.keys())
 			this.element.addEventListener(key.toLowerCase(), this.events.get(key));
-		Component.listComponents.push(this);
+		Input.listInputs.push(this);
 	}
-	
-
 
 	public function set_classes(value: Array<String>): Array<String> {
 		this.element.className = value.join(' ');
@@ -75,8 +66,6 @@ class Component {
 	public function get_width(): Int {
 		return this.width;
 	}
-
-	
 	public function set_height(value: Int): Int {
 		this.element.style.minHeight = value + 'px';
 		return this.height = value;
@@ -86,23 +75,13 @@ class Component {
 		return this.height;
 	}
 
-	public function hide(): Void {
-		this.hidden = true;
-		this.element.style.display = 'none';
-	}
-
-	public function delete(): Void {
-		this.element.remove();
-	}
-
-	public function show(): Void {
-		this.hidden = false;
-		this.element.style.display = 'block';
-	}
-
 	public function centralize(): Void {
 		this.element.style.top = '50%';
 		this.element.style.left = '50%';
 		this.element.style.transform = 'translate(-50%, -50%)';
+	}
+
+	public function delete(): Void {
+		this.element.remove();
 	}
 }

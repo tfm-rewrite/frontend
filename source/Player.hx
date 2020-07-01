@@ -14,13 +14,13 @@ class Player
 	}
 
 	private function stage_onKeyDown(event:KeyboardEvent):Void {
-		if (event.keyCode == 65 || event.keyCode == 37) {
+		if (((event.keyCode == 81 && Transformice.isFrenchKeyboard) || event.keyCode == 65 && !Transformice.isFrenchKeyboard) || event.keyCode == 37) {
 			this.mice.runLeft();
 		} else if (event.keyCode == 68 || event.keyCode == 39) {
 			this.mice.runRight();
 		} else if (event.keyCode == 83 || event.keyCode == 40) {
 			this.mice.duck();
-		} else if (event.keyCode == 87 || event.keyCode == 38) {
+		} else if (((event.keyCode == 90 && Transformice.isFrenchKeyboard) || event.keyCode == 87 && !Transformice.isFrenchKeyboard) || event.keyCode == 38) {
 			if (flash.Lib.getTimer() - this.jumpAvailableTime >= 50) {
 				this.mice.jump();
 			}
@@ -28,7 +28,7 @@ class Player
 	};
 
 	private function stage_onKeyUp(event:KeyboardEvent):Void {
-		if (event.keyCode == 65 || event.keyCode == 37) {
+		if (((event.keyCode == 81 && Transformice.isFrenchKeyboard) || event.keyCode == 65 && !Transformice.isFrenchKeyboard) || event.keyCode == 37) {
 			if (this.mice.runningLeft) {
 				this.mice.stopRun();
 			}

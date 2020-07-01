@@ -1,11 +1,14 @@
 package ui;
 
+import utils.Sounds;
 import haxe.Constraints.Function;
 import haxe.ds.Map;
 import js.Browser;
 import js.html.Element;
 class Button extends Component
 {
+
+
 
 	public var textField: TextField;
 	@:isVar public var callback(get, set): Function;
@@ -18,6 +21,7 @@ class Button extends Component
 		this.textField.element.style.position = 'relative';
 		this.element.appendChild(this.textField.element);
 		this.callback = callback;
+		this.element.addEventListener('mousedown', Sounds.MOUSE_CLICK.play);
 	}
 
 	public function set_callback(func: Function): Function {

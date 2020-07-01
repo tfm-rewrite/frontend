@@ -1,9 +1,9 @@
 package particle;
 
-import openfl.events.TextEvent;
-import openfl.events.Event;
-import openfl.display.MovieClip;
-import openfl.Lib;
+import flash.events.TextEvent;
+import flash.events.Event;
+import flash.display.MovieClip;
+import flash.Lib;
 
 class ParticleZero 
 {

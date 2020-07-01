@@ -45,8 +45,11 @@ class Window extends Component
 		this.textField = text;
 		this.textField.y = 10;
 		this.textField.x = title != '' ? 50 : 10;
-		var closeButton: Button = new Button(new TextField('Close', ['color' => 0xC2C2DA, 'align' => 'center']), this.delete, ['classes' => ['x_btn'], 'width' => this.width, 'x' => this.height - 20, 'y' => 12]);
-		this.element.appendChild(closeButton.element);
+		if (this.closable)
+		{	
+			var closeButton: Button = new Button(new TextField('Close', ['color' => 0xC2C2DA, 'align' => 'center']), this.delete, ['classes' => ['x_btn'], 'width' => this.width, 'x' => this.height - 20, 'y' => 12]);
+			this.element.appendChild(closeButton.element);
+		}
 		this.element.appendChild(borders.element);
 		this.element.appendChild(this.textField.element);
 	}

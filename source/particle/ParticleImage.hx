@@ -1,9 +1,9 @@
 package particle;
 
-import openfl.geom.Rectangle;
-import openfl.display.Sprite;
-import openfl.display.MovieClip;
-import openfl.display.BitmapData;
+import flash.geom.Rectangle;
+import flash.display.Sprite;
+import flash.display.MovieClip;
+import flash.display.BitmapData;
 
 class ParticleImage
 {

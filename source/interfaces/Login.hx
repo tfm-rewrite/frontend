@@ -1,10 +1,12 @@
 package interfaces;
 
+import ui.Component;
+import js.html.Element;
 import js.Browser;
 import openfl.display.Sprite;
 import resources.ResourcesImages;
-import ui.Window;
-import ui.TextField;
+import ui.*;
+import openfl.net.Socket;
 
 class Login extends Interface 
 {
@@ -14,37 +16,50 @@ class Login extends Interface
 	public function new()
 	{
 		super("login");
-		this.renderBackground(Config.getValueFrom("config", "background"));
+		this.renderBackground();
 		this.renderLoginButtons();
 	}
 
 	private function renderLoginButtons(): Void
 	{
-		var titles = ['', 'Transformice', '', 'HTML5', ''];
-		for (i in 0...5) {
-			var pop: Window = new Window(
-				new TextField('Hiii', ['classes' => ['x_text'], 'color' => 0xfbffb3]),
-				titles[i],
-				[
-					'classes' => ['x_window'],
-					'width' => Math.floor(Math.random()*600),
-					'height' => Math.floor(Math.random()*400),
-					'x' => 150 + (i*2),
-					'y' => 200 * i,
-					'closable' => true
-				]
-			);
-			Browser.document.body.appendChild(pop.element);
-		}
+		var main: Window = new Window(new TextField(''), 'Login', [
+			'classes' => ['x_window'],
+			'width' => 400,
+			'height' => 300
+		]);
+		var logo: Component = new Component('div', [
+			'classes' => ['x_transformiceLogo'],
+			'width' => 150,
+			'height' => 100,
+			'x' => -120,
+			'y' => 150
+		]);
+		var username: Input = new Input([
+			'classes' => ['x_login']
+		]);
+		username.centralize();
+		logo.element.innerHTML = '<a href="https://www.transformice.com">Transformice</a>';
+		main.element.appendChild(logo.element);
+		main.element.appendChild(username.element);
+		var loginButton: Button = new Button(new TextField('Login', ['color' => 0xC2C2DA, 'align' => 'center']), function() {
+			var sock: Socket = new Socket('127.0.0.1', 666);
+			sock.addEventListener('connect', function(a) {
+				trace('connected', a);
+				sock.writeShort(666);
+			});
+			trace("Login");	
+		}, ['classes' => ['x_btn'], 'width' => main.width, 'x' => main.height - 20, 'y' => 12]);
+		main.element.appendChild(loginButton.element);
+		main.centralize();
+		Browser.document.body.appendChild(main.element);
+	
 	}
 
-	private function renderBackground(bg_id: String): Void 
+	private function renderBackground(): Void 
 	{
-		var url: String = Config.getValueFrom("config", "url");
-		var imagesDir: String = Config.getValueFrom("config", "imagesDirectory");
-		
-
-		// addChildAt(img, 0);
+		var element: Element = Browser.document.createElement('div');
+		element.className = 'x_loginBg';
+		Browser.document.body.appendChild(element);
 	}
 
 	private function renderLoginContainer(): Void

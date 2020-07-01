@@ -1,3 +1,50 @@
+@font-face {
+	font-family: Soopafresh;
+	src: url(/assets/fonts/soopafre.ttf);
+}
+
+a, a:hover{
+	text-decoration: none; 
+}
+
+.x_loginBg {
+	position: absolute;
+	background: linear-gradient(0deg, #b1daf1, #5394B9);
+   	width: 100%;
+   	height: 100%;
+   	top: 0;
+   	left: 0;
+}
+.x_loginBg::after {
+	position: absolute;
+	background: url(/assets/images/x_ui/clouds.png);
+	background-size: 100%;
+	width: 100%;
+	height: 50%;
+	content: '';
+}
+
+.x_loginBg::before {
+	position: absolute;
+	background: url(/assets/images/x_ui/aclouds.png);
+	background-size: 100%;
+	background-repeat: no-repeat;
+	opacity: 0.8;
+	width: 100%;
+	top: -20px;
+	height: 100%;
+	overflow: hidden;
+	content: '';
+	animation: clouds 15s linear infinite;
+	right:-100%;
+
+}
+@keyframes clouds {
+    to {
+    	right: 100%;
+    }
+}
+
 .x_window {
 	color: #fff;
 	background-image: linear-gradient(0deg, #1E3D42, #0E1E20);
@@ -93,4 +140,42 @@ button:hover {
 	padding: 5px;
 	border-radius:5px;
 	outline: 0;
+}
+
+.x_transformiceLogo {
+	width: 210px;
+	height: 100px;
+	background: url(/assets/images/x_ui/cheese.png);
+	background-size: 67%;
+	background-repeat: no-repeat;
+	background-position-y: -4px;
+}
+.x_transformiceLogo a {
+	font-size: 32px;
+	color: #5d648e;
+	font-family: Soopafresh;
+	text-align: center;
+	top: 28px;
+	position: absolute;
+	left: -29px;
+	text-shadow: -1px 1px 15px #000, 1px 1px 15px #000, 1px -1px 1px #000, -1px -1px 1px #000;
+}
+
+
+.x_transformiceLogo:hover {
+	filter: brightness(120%);
+}
+
+input {
+    outline: none;
+}
+
+.x_login {
+    border-radius: 5px;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px dashed #795d3f;
+    color: #f4ce93;
+    font-family: Verdana;
+    text-align: center;
 }

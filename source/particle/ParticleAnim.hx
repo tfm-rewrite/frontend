@@ -1,8 +1,8 @@
 package particle;
 
-import openfl.events.Event;
+import flash.events.Event;
 import flash.display.BitmapData;
-import openfl.display.Bitmap;
+import flash.display.Bitmap;
 
 class ParticleAnim extends Bitmap {
 	public var zero: ParticleZero;
