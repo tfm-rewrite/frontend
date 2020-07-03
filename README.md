@@ -1,4 +1,4 @@
-# transformice
+# Transformice using Haxe
 Porting tfm to html5
 
 ## Latest Demo
