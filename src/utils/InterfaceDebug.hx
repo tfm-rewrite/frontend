@@ -67,6 +67,7 @@ class InterfaceDebug extends Sprite {
 	public static function hide(): Void {
 		if (InterfaceDebug.instance == null) return;
 		InterfaceDebug.instance.parent.removeChild(InterfaceDebug.instance);
+		InterfaceDebug.instance = null;
 	}
 
 	public function align(): Void{

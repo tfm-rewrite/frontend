@@ -91,7 +91,6 @@ class Packet {
 	public function readBool(): Bool {
 		return this.read8() == 1;
 	}
-
 	public function read16(): Int {
 		return this.read8() << 8 | this.read8(); 
 	}

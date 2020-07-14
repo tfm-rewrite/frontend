@@ -25,7 +25,7 @@ class Connection {
 	public var open: Bool = false;
 	public var transport: WebSocket;
 	public static var main: Connection = new Connection('main');
-	public static var bulle: Connection;
+	public static var bulle: Connection = new Connection('bulle');
 
 	public function new(name: String) {
 		this.protocol = new Protocol(this);
@@ -33,31 +33,27 @@ class Connection {
 	}
 
 	public function connect(host: String = '', port: Int = 6666): Void {
-		try {
-			if (Utils.gitpod != '')	 
-				this.address = 'wss://$port-${Utils.gitpod}';
-			else
-				this.address = '${Browser.location.protocol.indexOf('https') == 0 ? 'wss' : 'ws'}://${host == '' ? Utils.host : host}:$port';
-			this.transport = new WebSocket(this.address);
-
-			this.transport.onmessage = this.messageReceived;
-			this.transport.onerror = this.errorHandler;
-			this.transport.onopen = this.ready;
-			this.transport.onclose = function() {
-				this.open = false;
-				Interface.list.map(function(inter) {
-					inter.element.remove();
-					return null;
-				});
-				Transformice.instance.world.removeChildren();
-				Transformice.instance.removeChildren();
-				InterfaceDebug.instance = null;
-				InterfaceDebug.display();
-			};
-		} catch (error: Error) {
-			trace(error);
-		}
+		if (Utils.gitpod != '')
+			this.address = 'wss://$port-${Utils.gitpod}';
+		else
+			this.address = '${Browser.location.protocol.indexOf('https') == 0 ? 'wss' : 'ws'}://${host == '' ? Utils.host : host}:$port';
+		this.transport = new WebSocket(this.address);
+		this.transport.onmessage = this.messageReceived;
+		this.transport.onerror = this.errorHandler;
+		this.transport.onopen = this.ready;
+		this.transport.onclose = function() {
+			this.open = false;
+			Interface.list.map(function(inter) {
+				inter.element.remove();
+				return null;
+			});
+			Transformice.instance.world.removeChildren();
+			Transformice.instance.removeChildren();
+			InterfaceDebug.instance = null;
+			InterfaceDebug.display();
+		};
 	}
+
 
 	public function messageReceived(msg: MessageEvent): Void {
 		if (Std.isOfType(msg.data, Blob)) {
@@ -74,9 +70,11 @@ class Connection {
 	}
 
 	public function ready(event: Event): Void {
-
 		this.open = true;
-		this.send(new Identification());
+		if (this.name == 'main')
+			this.send(new Identification());
+		else
+			this.send(new packets.bulle.send.information.Identification());
 	}
 
 	public function send(packet: Packet, cipher: Bool = false): Void {
