@@ -13,3 +13,5 @@ Export/*
 .history
 .idea
 .idea/
+
+assets/swf/*.bundle/*

@@ -167,15 +167,29 @@ button:hover {
 }
 
 input {
-    outline: none;
+	outline: none;
+}
+
+.x_borders {
+	border-top: 1px solid rgba(255, 255, 255, 0.4);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.7);
+	border-left: 1px solid rgba(255, 255, 255, 0.4);
+	border-right: 1px solid rgba(0, 0, 0, 0.7);
 }
 
 .x_login {
-    border-radius: 5px;
-    padding: 5px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px dashed #795d3f;
-    color: #f4ce93;
-    font-family: Verdana;
-    text-align: center;
+	border-radius: 10px;
+	padding: 10px;
+	color: white;
+	font-size: 16px;
+	background: #735743;
+}
+
+.x_login:focus {
+	background: #654127;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+	border-top: 1px solid rgba(0, 0, 0, 0.7);
+	border-right: 1px solid rgba(255, 255, 255, 0.4);
+	border-left: 1px solid rgba(0, 0, 0, 0.7);
+	
 }

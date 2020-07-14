@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="Transformice" package="org.openfl.transformice" version="1.0.0" company="OpenFL" />
+	<meta title="Transformice" package="org.openfl.transformice" version="1.0.0" />
 	<app main="Transformice" path="export" file="Transformice" />
 	
 	<window background="#6A7495" fps="61" />
 	<template path="./templates/html5/template/index.html" rename="index.html" />
-	<source path="source" />
-	
-	<define name="stats" if="html5" />
-	
+	<source path="src" />
+		
 	<haxelib name="openfl" />
 	<haxelib name="box2d" />
-	<haxelib name="starling" />
 
-	<assets path="Assets" rename="assets" />
-	<library path="assets/swf/animations.swf" preload="true" id="animations" />
-	<library path="assets/swf/resources.swf" preload="true" id="resources" />
-	<library path="assets/swf/equipments.swf" preload="true" id="equipments" />
-	<library path="assets/swf/furs.swf" preload="true" id="furs" />
+	<assets path="assets" rename="assets" exclude="*.swf|*.bat"/>
 </project>
