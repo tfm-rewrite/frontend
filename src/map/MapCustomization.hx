@@ -42,8 +42,8 @@ class MapCustomization extends Sprite {
 	public static function initialization(): Void {
 		var grounds: Array<String> = Assets.list(AssetType.IMAGE);
 		for (i in 0...0xFFFF) {
-			if (AssetsManager.image('assets//images/x_grounds/$i.png') != null) {
-				texturesTemp.push(AssetsManager.image('assets//images/x_grounds/$i.png'));
+			if (AssetsManager.image('assets/images/x_grounds/$i.png') != null) {
+				texturesTemp.push(AssetsManager.image('assets/images/x_grounds/$i.png'));
 				continue;
 			}
 			var clip: MovieClip = AssetsManager.clip("$T_"+ i);
@@ -70,6 +70,8 @@ class MapCustomization extends Sprite {
 	}
 
 	public static function initializationLoop(event: Event): Void {
+		if (length >= texturesTemp.length + picturesTemp.length + groundsTemp.length)
+			Transformice.instance.stage.removeEventListener(Event.ENTER_FRAME, initializationLoop);
 		if (length < texturesTemp.length) {
 			for (i in 0...texturesTemp.length) {
 				textures['T$i'] = new Texture(cast texturesTemp[i], 40, 40);
@@ -123,6 +125,8 @@ class MapCustomization extends Sprite {
 					img = new Bitmap(grounds[0], 'auto', true);
 				img.width = width;
 				img.height = height;
+				img.x = -(width/2);
+				img.y = -(height/2);
 				return img;
 			case Ground.ICE:
 				if (blank) {
@@ -137,6 +141,8 @@ class MapCustomization extends Sprite {
 					img = new Bitmap(grounds[1], 'auto', true);
 				img.width = width;
 				img.height = height;
+				img.x = -(width/2);
+				img.y = -(height/2);
 				return img;
 			case Ground.TRAMPOLINE:
 				if (blank) {
@@ -151,6 +157,8 @@ class MapCustomization extends Sprite {
 					img = new Bitmap(grounds[3], 'auto', true);
 				img.width = width;
 				img.height = height;
+				img.x = -(width/2);
+				img.y = -(height/2);
 				return img;
 			case Ground.LAVA:
 				if (blank) {
@@ -178,6 +186,8 @@ class MapCustomization extends Sprite {
 					img = new Bitmap(grounds[4], 'auto', true);
 				img.width = width;
 				img.height = height;
+				img.x = -(width/2);
+				img.y = -(height/2);
 				return img;
 			case Ground.EARTH:
 				if (blank) {
@@ -233,6 +243,8 @@ class MapCustomization extends Sprite {
 					img = new Bitmap(grounds[2], 'auto', true);
 				img.width = width;
 				img.height = height;
+				img.x = -(width/2);
+				img.y = -(height/2);
 				return img;
 			case Ground.WATER:
 				if (blank) {
@@ -340,6 +352,8 @@ class MapCustomization extends Sprite {
 				sprite.addChild(new Bitmap(data));
 			
 		}
+		sprite.x = - (width / 2);
+		sprite.y = - (height / 2);
 		return sprite;
 	}
 

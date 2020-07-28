@@ -33,10 +33,13 @@ class PlayerAnim {
 	};
 
 	public static function getAnim(lib: String, fur: Int, animName: String, colors: Array<Int> = null): MovieClip {
+		trace(Assets.hasLibrary('resources'), Assets.hasLibrary('furs'));
+
 		var assetLib = Assets.getLibrary(lib);
 		if (assetLib == null) return null;
-		var clip: MovieClip= null;
+		var clip: MovieClip = null;
 		var colorsLength: Int = colors != null ? colors.length : 0;
+
 		if (assetLib.exists(animName, cast AssetType.MOVIE_CLIP)) {
 			clip = Assets.getMovieClip('$lib:$animName');
 			if (clip == null) return null;

@@ -148,4 +148,12 @@ class Packet {
 		ret.writeBytes(pack.buffer).writeBytes(this.buffer);
 		return ret.buffer.buffer;
 	}
+
+	public function toString(): String {
+		var s: String = '';
+		for (i in 0...this.buffer.length)
+			s += ( '0' + StringTools.hex(this.buffer[i])).substr(-2,2) + ' ';
+		
+		return s;
+	}
 }

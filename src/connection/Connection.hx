@@ -1,5 +1,6 @@
 package connection;
 
+import haxe.CallStack;
 import utils.InterfaceDebug;
 import js.lib.Error;
 import haxe.Timer;
@@ -37,21 +38,25 @@ class Connection {
 			this.address = 'wss://$port-${Utils.gitpod}';
 		else
 			this.address = '${Browser.location.protocol.indexOf('https') == 0 ? 'wss' : 'ws'}://${host == '' ? Utils.host : host}:$port';
-		this.transport = new WebSocket(this.address);
-		this.transport.onmessage = this.messageReceived;
-		this.transport.onerror = this.errorHandler;
-		this.transport.onopen = this.ready;
-		this.transport.onclose = function() {
-			this.open = false;
-			Interface.list.map(function(inter) {
-				inter.element.remove();
-				return null;
-			});
-			Transformice.instance.world.removeChildren();
-			Transformice.instance.removeChildren();
-			InterfaceDebug.instance = null;
-			InterfaceDebug.display();
-		};
+		try {
+			this.transport = new WebSocket(this.address);
+			this.transport.onmessage = this.messageReceived;
+			this.transport.onerror = this.errorHandler;
+			this.transport.onopen = this.ready;
+			this.transport.onclose = function() {
+				this.open = false;
+				Interface.list.map(function(inter) {
+					inter.element.remove();
+					return null;
+				});
+				Transformice.instance.world.removeChildren();
+				Transformice.instance.removeChildren();
+				InterfaceDebug.instance = null;
+				InterfaceDebug.display();
+			};
+		} catch (err) {
+			trace('err2', CallStack.toString(CallStack.exceptionStack()));
+		}
 	}
 
 
@@ -67,6 +72,7 @@ class Connection {
 
 	public function errorHandler(err: Event): Void {
 		this.open = false;
+		// trace(err.data);
 	}
 
 	public function ready(event: Event): Void {

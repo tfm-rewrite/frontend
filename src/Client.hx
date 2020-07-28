@@ -46,7 +46,6 @@ class Client {
 	}
 
 	public static function connectBulle(host: String, ports: Array<Int>, index: Int = 0): Void {
-		trace(index, ports.length);
 		if (index >= ports.length)
 			return InterfaceDebug.setText('Failed to connect to the bulle server.');
 		for (i in index...ports.length) {

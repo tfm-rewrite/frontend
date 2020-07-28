@@ -10,6 +10,8 @@ import openfl.display.MovieClip;
 import openfl.utils.AssetType;
 
 class AssetsManager {
+	public static var additional: Array<String> = [];
+
 	public static function libraries(): Array<String> {
 		var libraries:Array<String> = new Array();
 		for (path in Assets.list(AssetType.BINARY)) {
@@ -21,7 +23,7 @@ class AssetsManager {
 	}
 
 	public static function clip(name: String): MovieClip {
-		for (lib in AssetsManager.libraries()) {
+		for (lib in AssetsManager.additional.concat(AssetsManager.libraries())) {
 			var library = cast(Assets.getLibrary(lib), openfl.utils.AssetLibrary);
 			if (library.exists(name, cast AssetType.MOVIE_CLIP))
 				return cast(library.getMovieClip(name), MovieClip);
