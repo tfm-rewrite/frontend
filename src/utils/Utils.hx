@@ -4,6 +4,7 @@ import js.lib.Uint8Array;
 import openfl.utils.ByteArray;
 
 class Utils {
+	public static var useGitpod: Bool = true;
 	public static var gitpod: String = 'e014bc87-a989-478c-adba-b4ae3194e2e0.ws-eu01.gitpod.io/';
 	public static var host: String = '127.0.0.1';
 	public static var ports: Array<Int> = [6666];

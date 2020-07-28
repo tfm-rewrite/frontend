@@ -9,24 +9,23 @@ import js.lib.Uint8Array;
 
 class Packet {
 
-	public var buffer: Uint8Array = new Uint8Array(0);
+	public var buffer: Uint8Array;
 	public var length: Int = 0;
 	public var read_position: Int = 0;
 	public var write_position: Int = 0;
 	
 	public function new(v: Any = null, CC: Int = -1) {
-		if (Std.isOfType(v, ArrayBuffer)) {
+		if (Std.isOfType(v, Int) && CC == -1) {
+			this.buffer = new Uint8Array(0);
+			this.write16(v);
+		} else if (Std.isOfType(v, Int) && CC > 0) {
+			this.buffer = new Uint8Array(0);
+			this.write8(v).write8(CC);
+		} else {
 			this.buffer = new Uint8Array(v);
 			this.length = this.buffer.length;
 			this.write_position = this.length;
-		} else if (Std.isOfType(v, Uint8Array)) {
-			this.buffer = cast(v, Uint8Array);
-			this.length = this.buffer.length;
-			this.write_position = this.length;
-		} else if (Std.isOfType(v, Int) && CC == -1) 
-			this.write16(v);
-		else if (Std.isOfType(v, Int) && CC > 0)
-			this.write8(v).write8(CC);
+		}
 	}
 
 	public function writeBool(value: Bool): Packet {
@@ -69,7 +68,7 @@ class Packet {
 		return this;
 	}
 
-	public function writeRawSrting(value: String): Packet {
+	public function writeRawString(value: String): Packet {
 		var strarr: Uint8Array = new TextEncoder().encode(value);
 		this.expand(strarr.length);
 		this.buffer.set(strarr, this.write_position);
@@ -79,7 +78,7 @@ class Packet {
 	
 	public function writeString(value: String): Packet {
 		this.write16(value.length);
-		this.writeRawSrting(value);
+		this.writeRawString(value);
 		return this;
 	}
 
@@ -109,7 +108,7 @@ class Packet {
 		return this.buffer.subarray(start == -1 ? this.read_position - length : start, end == -1 ? this.length : end);
 	}
 
-	public function readRawString(size: Int): String {
+	public function readRawString(size: UInt): String {
 		this.overflow(size);
 		this.read_position += size;
 		return new TextDecoder().decode(this.buffer.subarray(this.read_position - size, this.read_position));
@@ -119,7 +118,11 @@ class Packet {
 		return this.readRawString(this.read16());
 	}
 
-	private function overflow(size: Int): Void {
+	public function readBigString(): String {
+		return this.readRawString(this.read32());
+	}
+
+	private function overflow(size: UInt): Void {
 		if (this.read_position + size > this.length)
 			throw new Error('Packet overflow');
 	}

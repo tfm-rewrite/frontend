@@ -27,6 +27,9 @@ import flash.system.Capabilities;
 import flash.display.Sprite;
 import utils.AssetsManager;
 
+import packets.main.MainHandler;
+import packets.bulle.BulleHandler;
+
 class Transformice extends Sprite {
 	public static var instance: Transformice;
 	public static var isAzerty: Bool = Capabilities.language.toLowerCase() == 'fr';
@@ -38,21 +41,75 @@ class Transformice extends Sprite {
 	public var world: Sprite;
 	public var playerList: Array<Player>;
 
+	public var pid: UInt;
+	public var bulleToken: UInt;
+
+	public var initializations = [
+		[
+			"name" => "resources",
+			"extra" => function() {
+			}
+		],
+		[
+			"name" => "transformice",
+			"extra" => function() {
+			}
+		],
+		[
+			"name" => "mapictures",
+			"extra" => function() {
+				MapCustomization.initialization();
+			}
+		],
+		[
+			"name" => "equipments",
+			"extra" => function() {
+			}
+		],
+		[
+			"name" => "furs",
+			"extra" => function() {
+			}
+		],
+		[
+			"name" => "animations",
+			"extra" => function() {
+			}
+		]
+	];
+
+	public var main: Connection;
+	public var bulle: Connection;
+
+	public var mainHandler: MainHandler;
+	public var bulleHandler: BulleHandler;
+
 	public function new() {
 		super();
+
 		Transformice.instance = this;
+		this.main = new Connection("main", this);
+
+		this.mainHandler = new MainHandler();
+		this.bulleHandler = new BulleHandler();
+
 		this.physicWorld = new B2World(new B2Vec2(0, 10), true);
 		this.world = new Sprite();
+
 		stage.addChild(this.world);
 		stage.addEventListener(Event.ENTER_FRAME, this.onEnterFrame);
+
 		var dbgDraw:B2DebugDraw = new B2DebugDraw();
 		var dbgSprite:Sprite = new Sprite();
+
 		this.world.addChild(dbgSprite);
+
 		dbgDraw.setSprite(dbgSprite);
 		dbgDraw.setDrawScale(30);
 		dbgDraw.setFillAlpha(0.5);
 		dbgDraw.setLineThickness(2.0);
 		dbgDraw.setFlags(B2DebugDraw.e_shapeBit | B2DebugDraw.e_jointBit | B2DebugDraw.e_pairBit);
+
 		this.physicWorld.setDebugDraw(dbgDraw);
 		this.initializationResources();
 	}
@@ -81,99 +138,82 @@ class Transformice extends Sprite {
 		return Transformice.defaultFrameRate;
 	}
 
-	private function start(): Void {
-		// MapCustomization.forceFinishInitialization(); to force initialize map customization things ( we should use it when player login and assets not loaded yet )
-		// InterfaceDebug.hide();
+	public function on_data_received(buffer: Uint8Array, conn: Connection): Void {
+		var packet: Packet = new Packet(buffer);
+		var ccc: Int = packet.read16();
 
-		// var gg: Ground = new Ground(Ground.EARTH, 200, 200, 200, 200);
-		// var player: Player = new Player();
-		// player.x = 200;
-		// player.y = 200;
-		
-		InterfaceDebug.setText('Connecting...');
-		this.connect();
+		if(conn.name == "main") {
+			this.mainHandler.handle(conn, ccc, packet);
+		} else {
+			this.bulleHandler.handle(conn, ccc, packet);
+		}
 	}
 
-	private function connect(index: Int = 0): Void {
-		if (index >= Utils.ports.length)
-			return InterfaceDebug.setText('Failed to connect to the servers.');
-		try { 
-			for (i in index...Utils.ports.length) {
-				InterfaceDebug.setText('Connecting to server ${Utils.ports[i]}...');
-				Connection.main.connect('', Utils.ports[i]);
-				// Timer.delay(function() {
-				// 	if (Connection.main.transport.readyState != WebSocket.OPEN) {
-				// 		Connection.main.transport.close();
-				// 		this.connect(index + 1);
-				// 	}	
-				// }, 5000);
-			}
-		} catch (err) {
-			Connection.main.transport.close();
-			this.connect(index + 1);
-			trace('err', CallStack.toString(CallStack.exceptionStack()));
+	public function on_connection_made(conn: Connection): Void {
+		if(conn.name == "main") {
+			InterfaceDebug.hide();
+		} else { // bulle
 		}
+	}
+
+	public function on_connection_lost(conn: Connection): Void {
+		if(conn.name == "main") {
+			this.bulle.close();
+
+			Interface.list.map(function(inter) {
+				inter.element.remove();
+				return null;
+			});
+
+			this.world.removeChildren();
+			this.removeChildren();
+
+			InterfaceDebug.instance = null;
+			InterfaceDebug.display();
+			InterfaceDebug.setText("Connection lost.");
+		}
+	}
+
+	private function start(): Void {
+		for(index in 0...Utils.ports.length) {
+			try {
+				InterfaceDebug.setText("Connecting to port " + Utils.ports[index] + "...");
+
+				if(Utils.useGitpod)
+					this.main.connect(Utils.gitpod, Utils.ports[index], true);
+				else
+					this.main.connect(Utils.host, Utils.ports[index], false);
+
+				return;
+			} catch (err) {
+			}
+		}
+
+		InterfaceDebug.setText('Failed to connect to the servers.');
+	}
+
+	private function initializeResource(index: Int): Void {
+		if(index >= this.initializations.length)
+			return this.start();
+
+		var resource = this.initializations[index];
+		AssetLibrary.loadFromFile("../assets/swf/" + resource.name + ".bundle")
+		.onProgress(function(a: Int, b: Int) {
+			InterfaceDebug.setText("Initializing " + resource.name + "...");
+		})
+		.onComplete(function(lib: AssetLibrary) {
+			Assets.registerLibrary(resource.name, lib);
+			AssetsManager.additional.push(resource.name);
+			resource.extra();
+			InterfaceDebug.setText("Initialized " + resource.name + ".");
+
+			this.initializeResource(index + 1);
+		});
 	}
 
 	private function initializationResources(): Void {
 		InterfaceDebug.display();
-		InterfaceDebug.setText('Initialization...');
-		AssetLibrary.loadFromFile('../assets/swf/resources.bundle')
-		.onProgress(function(a: Int, b: Int) {
-			InterfaceDebug.setText('Initializing resources...');
-		})
-		.onComplete(function(lib: AssetLibrary) {
-			Assets.registerLibrary('resources', lib);
-			AssetsManager.additional.push('resources');
-			InterfaceDebug.setText('Initialized resources.');
-			AssetLibrary.loadFromFile('../assets/swf/transformice.bundle')
-			.onProgress(function(a: Int, b: Int) {
-				InterfaceDebug.setText('Initializing transofrmice...');
-			})
-			.onComplete(function(lib: AssetLibrary) {
-				Assets.registerLibrary('transformice', lib);
-				AssetsManager.additional.push('transformice');
-				InterfaceDebug.setText('Initialized transformice.');
-				AssetLibrary.loadFromFile('../assets/swf/mapictures.bundle')
-				.onProgress(function(a: Int, b: Int) {
-					InterfaceDebug.setText('Initializing maps...');
-				})
-				.onComplete(function(lib: AssetLibrary) {
-					Assets.registerLibrary('mapictures', lib);
-					AssetsManager.additional.push('mapictures');
-					MapCustomization.initialization();
-					InterfaceDebug.setText('Initialized maps.');
-					AssetLibrary.loadFromFile('../assets/swf/equipments.bundle')
-					.onProgress(function(a: Int, b: Int) {
-						InterfaceDebug.setText('Initializing equipments...');
-					})
-					.onComplete(function(lib: AssetLibrary) {
-						Assets.registerLibrary('equipments', lib);
-						AssetsManager.additional.push('equipments');
-						InterfaceDebug.setText('Initialized equipments.');
-						AssetLibrary.loadFromFile('../assets/swf/furs.bundle')
-						.onProgress(function(a: Int, b: Int) {
-							InterfaceDebug.setText('Initializing furs...');
-						})
-						.onComplete(function(lib: AssetLibrary) {
-							Assets.registerLibrary('furs', lib);
-							AssetsManager.additional.push('furs');
-							InterfaceDebug.setText('Initialized furs.');
-							AssetLibrary.loadFromFile('../assets/swf/animations.bundle')
-							.onProgress(function(a: Int, b: Int) {
-								InterfaceDebug.setText('Initializing animations');
-							})
-							.onComplete(function(lib: AssetLibrary) {
-								Assets.registerLibrary('animations', lib);
-								AssetsManager.additional.push('animations');
-								InterfaceDebug.setText('Initialized animations.');
-								this.start();
-							});
-						});
-					});
-				});
-			});
-		});
-		
+		InterfaceDebug.setText("Initialization...");
+		this.initializeResource(0);
 	}
 }

@@ -1,94 +1,81 @@
 package connection;
 
-import haxe.CallStack;
-import utils.InterfaceDebug;
-import js.lib.Error;
-import haxe.Timer;
-import js.lib.Uint8Array;
-import js.lib.ArrayBuffer;
-import js.lib.Promise;
-import js.html.Blob;
-import js.html.MessageEvent;
-import packets.main.send.information.Identification;
-import utils.Packet;
-import js.html.Event;
 import js.Browser;
-import js.html.Location;
-import utils.Utils;
+import js.html.MessageEvent;
 import js.html.WebSocket;
+import js.lib.ArrayBuffer;
+import js.html.Event;
+import haxe.Timer;
 
 class Connection {
+	public static var secure: Bool = Browser.location.protocol.indexOf('https') == 0;
 
-	public var protocol: Protocol;
 	public var name: String;
-	public var address: String;
-	public var fingerprint: Int = 0;
-	public var open: Bool = false;
+	public var client: Transformice;
+
+	public var port: Int;
+
+	public var protocol: TFMProtocol;
 	public var transport: WebSocket;
-	public static var main: Connection = new Connection('main');
-	public static var bulle: Connection = new Connection('bulle');
 
-	public function new(name: String) {
-		this.protocol = new Protocol(this);
-		this.name = name.toLowerCase();
+	public var open: Bool;
+
+	public function new(name: String, client: Transformice) {
+		this.name = name;
+		this.client = client;
+
+		this.protocol = new TFMProtocol(this);
 	}
 
-	public function connect(host: String = '', port: Int = 6666): Void {
-		if (Utils.gitpod != '')
-			this.address = 'wss://$port-${Utils.gitpod}';
-		else
-			this.address = '${Browser.location.protocol.indexOf('https') == 0 ? 'wss' : 'ws'}://${host == '' ? Utils.host : host}:$port';
-		try {
-			this.transport = new WebSocket(this.address);
-			this.transport.onmessage = this.messageReceived;
-			this.transport.onerror = this.errorHandler;
-			this.transport.onopen = this.ready;
-			this.transport.onclose = function() {
-				this.open = false;
-				Interface.list.map(function(inter) {
-					inter.element.remove();
-					return null;
-				});
-				Transformice.instance.world.removeChildren();
-				Transformice.instance.removeChildren();
-				InterfaceDebug.instance = null;
-				InterfaceDebug.display();
-			};
-		} catch (err) {
-			trace('err2', CallStack.toString(CallStack.exceptionStack()));
+	public function connect(host: String, port: Int, gitpod: Bool): Void {
+		var address: String;
+		this.port = port;
+
+		if(gitpod) {
+			address = "wss://" + port + "-" + host;
+		} else if (this.secure) {
+			address = "wss://" + host + ":" + port;
+		} else {
+			address = "ws://" + host + ":" + port;
 		}
+
+		this.transport = new WebSocket(this.address);
+		this.transport.onmessage = this.on_message;
+		this.transport.onopen = this.on_connected;
+		this.transport.onerror = this.on_error;
+		this.transport.onclose = this.on_close;
 	}
 
+	public function send(): Void {
+		if(!this.open)
+			return;
+	}
 
-	public function messageReceived(msg: MessageEvent): Void {
+	public function on_message(msg: MessageEvent): Void {
 		if (Std.isOfType(msg.data, Blob)) {
-			var promise: Promise<Any> = msg.data.arrayBuffer();
-			promise.then(function(buff) {
-				var ab: ArrayBuffer = buff;
-				this.protocol.dataRecieve(new Uint8Array(ab));
-			}).catchError(function(err) {});
+			msg.data.arrayBuffer().then(buff => {
+				this.protocol.data_received(buff);
+			});
 		}
 	}
 
-	public function errorHandler(err: Event): Void {
-		this.open = false;
-		// trace(err.data);
+	public function on_connected(evt: Event): Void {
+		this.checkerTimer.stop();
+		this.protocol.connection_made();
 	}
 
-	public function ready(event: Event): Void {
-		this.open = true;
-		if (this.name == 'main')
-			this.send(new Identification());
-		else
-			this.send(new packets.bulle.send.information.Identification());
+	public function on_error(evt: Event): Void {
+		this.protocol.connection_lost();
 	}
 
-	public function send(packet: Packet, cipher: Bool = false): Void {
-		if (!this.open) 
+	public function on_close(): Void {
+		this.protocol.connection_lost();
+	}
+
+	public function close(): Void {
+		if(!this.open)
 			return;
-		if (cipher)
-			return;
-		this.transport.send(packet.export(this.fingerprint));
-		this.fingerprint = (this.fingerprint + 1) % 100;
+
+		this.transport.close();
 	}
 }
