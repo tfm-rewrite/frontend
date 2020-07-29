@@ -1,14 +1,16 @@
 package connection;
 
+import utils.Packet;
 import js.Browser;
 import js.html.MessageEvent;
 import js.html.WebSocket;
 import js.lib.ArrayBuffer;
 import js.html.Event;
-import haxe.Timer;
 
 class Connection {
 	public static var secure: Bool = Browser.location.protocol.indexOf('https') == 0;
+
+	public var sequenceId: Int;
 
 	public var name: String;
 	public var client: Transformice;
@@ -25,6 +27,7 @@ class Connection {
 		this.client = client;
 
 		this.protocol = new TFMProtocol(this);
+		this.sequenceId = 0;
 	}
 
 	public function connect(host: String, port: Int, gitpod: Bool): Void {
@@ -46,9 +49,14 @@ class Connection {
 		this.transport.onclose = this.on_close;
 	}
 
-	public function send(): Void {
+	public function send(packet: Packet): Void {
 		if(!this.open)
 			return;
+
+		this.transport.send(packet.export(this.sequenceId));
+		this.sequenceId = (this.sequenceId + 1) % 256;
+
+		packet.destroy();
 	}
 
 	public function on_message(msg: MessageEvent): Void {
@@ -60,7 +68,6 @@ class Connection {
 	}
 
 	public function on_connected(evt: Event): Void {
-		this.checkerTimer.stop();
 		this.protocol.connection_made();
 	}
 

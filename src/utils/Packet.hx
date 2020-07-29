@@ -8,153 +8,330 @@ import js.lib.ArrayBuffer;
 import js.lib.Uint8Array;
 
 class Packet {
+	public var readable: Bool;
+	public var length: Int = 0;
 
 	public var buffer: Uint8Array;
-	public var length: Int = 0;
-	public var read_position: Int = 0;
-	public var write_position: Int = 0;
-	
-	public function new(v: Any = null, CC: Int = -1) {
-		if (Std.isOfType(v, Int) && CC == -1) {
-			this.buffer = new Uint8Array(0);
-			this.write16(v);
-		} else if (Std.isOfType(v, Int) && CC > 0) {
-			this.buffer = new Uint8Array(0);
-			this.write8(v).write8(CC);
-		} else {
-			this.buffer = new Uint8Array(v);
-			this.length = this.buffer.length;
-			this.write_position = this.length;
+
+	public var pointer: Int;
+
+	public var ciphered: Bool;
+	public var allocated: Int;
+
+	public function new(data: Any = null, cc: Int = -1, size: Int = 0) {
+		if(std.isOfType(data, Int)) { // writable packet
+			this.readable = false;
+			this.ciphered = false;
+			this.allocated = 0;
+			this.allocate(size); // approximate size of the packet (to make this faster)
+
+			if(cc == -1) {
+				this.write16(data); // ccc
+			} else {
+				this.write8(data).write8(cc); // c, cc
+			}
+		} else { // readable packet
+			this.readable = true;
+			this.pointer = 0;
+			this.length = data.length;
+			this.buffer = new Uint8Array(data); // ArrayBuffer to Uint8Array
 		}
 	}
 
-	public function writeBool(value: Bool): Packet {
-		this.expand(1);
-		this.buffer[this.write_position++] = value ? 1 : 0;
+	public function destroy() {
+		this.length = 0;
+		this.buffer = new Uint8Array(0);
+
+		if(this.readable) {
+			this.pointer = 0;
+		} else {
+			this.ciphered = false;
+			this.allocated = 0;
+		}
+	}
+
+	/***********************************/
+	/*         WRITE FUNCTIONS         */
+	/***********************************/
+
+	public function allocate(size: Int): Void {
+		// This function allocates extra bytes in the buffer
+		// We allocate `size` which is the needed size plus some extra bytes
+		// this way, we have the size to write the data we need and
+		// some possible allocations can be skipped.
+
+		// using a big number will make it faster, but use more memory (call less allocations)
+		// using a small number will make it slower, but use less memory (call more allocations)
+		this.allocated += size + 30;
+
+		data = this.buffer;
+		this.buffer = new Uint8Array(this.allocated);
+		this.buffer.set(data, 0);
+	}
+
+	public function grow(size: Int): Void {
+		// This function grows the length pointer and allocates bytes if needed.
+
+		this.length += size;
+		if(this.length > this.allocated) {
+			this.allocate(this.length - this.allocated);
+		}
+	}
+
+	// These write functions support both signed and unsigned writes.
+	public function write8(byte: Int): Packet {
+		this.grow(1);
+		this.buffer[this.length - 1] = value & 0xff;
 		return this;
 	}
 
-	public function write8(value: Int): Packet {
-		this.expand(1);
-		this.buffer[this.write_position++] = value & 0xff;
+	public function write16(short: Int): Packet {
+		this.grow(2);
+
+		this.buffer[this.length - 2] = (value >> 8) & 0xff;
+		this.buffer[this.length - 1] = value & 0xff;
+
 		return this;
 	}
 
-	public function write16(value: Int): Packet {
-		this.expand(1);
-		this.buffer[this.write_position++] = value >> 8 & 0xff;
-		this.write8(value);
+	public function write24(word: Int): Packet {
+		this.grow(3);
+
+		this.buffer[this.length - 3] = (value >> 16) & 0xff;
+		this.buffer[this.length - 2] = (value >> 8) & 0xff;
+		this.buffer[this.length - 1] = value & 0xff;
+
 		return this;
 	}
 
-	public function write24(value: Int): Packet {
-		this.expand(1);
-		this.buffer[this.write_position++] = value >> 16 & 0xff;
-		this.write16(value);
+	public function write32(word: Int): Packet {
+		this.grow(4);
+
+		this.buffer[this.length - 4] = (value >> 24) & 0xff;
+		this.buffer[this.length - 3] = (value >> 16) & 0xff;
+		this.buffer[this.length - 2] = (value >> 8) & 0xff;
+		this.buffer[this.length - 1] = value & 0xff;
+
 		return this;
 	}
 
-	public function write32(value: UInt): Packet {
-		this.expand(1);
-		this.buffer[this.write_position++] = value >> 24 & 0xff;
-		this.write24(value);
+	public function writeBool(bool: Bool): Packet {
+		return this.write8(bool ? 1 : 0);
+	}
+
+	public function writeString(string: String): Packet {
+		var desired: Int = this.length + string.length + 2;
+		if(desired > this.allocated) {
+			this.allocate(desired - this.allocated);
+		}
+
+		this.write16(string.length);
+		this.buffer.set(Utils.stringToBytes(string), this.length);
+		this.length += string.length;
+
 		return this;
 	}
 
-	public function writeBytes(value: Uint8Array, offset: Int = -1): Packet {
-		this.expand(value.length);
-		this.buffer.set(value, offset == -1 ? this.write_position : offset);
-		this.write_position += value.length;
+	public function writeLongString(string: String): Packet {
+		var desired: Int = this.length + string.length + 3;
+		if(desired > this.allocated) {
+			this.allocate(desired - this.allocated);
+		}
+
+		this.write24(string.length);
+		this.buffer.set(Utils.stringToBytes(string), this.length);
+		this.length += string.length;
+
 		return this;
 	}
 
-	public function writeRawString(value: String): Packet {
-		var strarr: Uint8Array = new TextEncoder().encode(value);
-		this.expand(strarr.length);
-		this.buffer.set(strarr, this.write_position);
-		this.write_position += strarr.length;
-		return this;
-	}
-	
-	public function writeString(value: String): Packet {
-		this.write16(value.length);
-		this.writeRawString(value);
+	public function writeBigString(string: String): Packet {
+		var desired: Int = this.length + string.length + 4;
+		if(desired > this.allocated) {
+			this.allocate(desired - this.allocated);
+		}
+
+		this.write32(string.length);
+		this.buffer.set(Utils.stringToBytes(string), this.length);
+		this.length += string.length;
+
 		return this;
 	}
 
+	public function cipher(?sequenceId: Int, ?key: Array<Int>): Packet {
+		if(sequenceId == null || key == null) {
+			this.ciphered = true;
+		} else {
+			for(index in 2...this.length) {
+				this.buffer[index] ^= key[(index + sequenceId - 1) % key.length];
+			}
+		}
+
+		return this;
+	}
+
+	public function export(sequenceId: Int, ?key: Array<Int>): Uint8Array {
+		if(this.ciphered && key != null) {
+			this.cipher(sequenceId, key);
+		}
+
+		var size: Int = this.length;
+		var size_type: Int = size >> 7;
+		var header: Array<Int> = [];
+
+		while(size_type != 0) {
+			header.push(size & 0x7f | 0x80);
+			size = size_type;
+			size_type >>= 7;
+		}
+		header.push(size & 0x7f);
+		header.push(sequenceId);
+
+		var packet: Uint8Array = new Uint8Array(header.length + this.length);
+		packet.set(header, 0);
+		packet.set(this.buffer, header.length);
+		return packet;
+	}
+
+
+	/***********************************/
+	/*          READ FUNCTIONS         */
+	/***********************************/
+
+	public function read(size: Int): Void {
+		// This function checks if you can read this quantity of bytes
+		// Throws an error if you can't.
+
+		this.pointer += size;
+		if(this.pointer >= this.length) {
+			throw new Error("Reading past packet end");
+		}
+	}
+
+	// Even if when writing we use a single function for writing both
+	// signed and unsigned integers, we need to use one function or the other to read.
 	public function read8(): Int {
-		this.overflow(1);
-		return this.buffer[this.read_position++] & 0xff;
+		this.read(1);
+		return (
+			this.buffer[this.pointer - 1]
+		);
+	}
+
+	public function read16(): Int {
+		this.read(2);
+		return (
+			(this.buffer[this.pointer - 2] << 8) +
+			this.buffer[this.pointer - 1]
+		);
+	}
+
+	public function read24(): Int {
+		this.read(3);
+		return (
+			(this.buffer[this.pointer - 3] << 16) +
+			(this.buffer[this.pointer - 2] << 8) +
+			this.buffer[this.pointer - 1]
+		);
+	}
+
+	public function read32(): Int {
+		this.read(4);
+		return (
+			(this.buffer[this.pointer - 4] << 24) +
+			(this.buffer[this.pointer - 3] << 16) +
+			(this.buffer[this.pointer - 2] << 8) +
+			this.buffer[this.pointer - 1]
+		);
+	}
+
+	public function readS8(): Int {
+		this.read(1);
+		var byte: Int = (
+			this.buffer[this.pointer - 1]
+		);
+
+		if((byte & 0x80) > 0) {
+			return 0x80 - (byte & 0x7f); // invert the bits
+		}
+		return byte;
+	}
+
+	public function readS16(): Int {
+		this.read(2);
+		var short: Int = (
+			(this.buffer[this.pointer - 2] << 8) +
+			this.buffer[this.pointer - 1]
+		);
+
+		if((short & 0x8000) > 0) {
+			return 0x8000 - (short & 0x7fff);
+		}
+		return short;
+	}
+
+	public function readS24(): Int {
+		this.read(3);
+		var word: Int = (
+			(this.buffer[this.pointer - 3] << 16) +
+			(this.buffer[this.pointer - 2] << 8) +
+			this.buffer[this.pointer - 1]
+		);
+
+		if((word & 0x800000) > 0) {
+			return 0x800000 - (word & 0x7fffff);
+		}
+		return word;
+	}
+
+	public function readS32(): Int {
+		this.read(4);
+		var int: Int = (
+			(this.buffer[this.pointer - 4] << 24) +
+			(this.buffer[this.pointer - 3] << 16) +
+			(this.buffer[this.pointer - 2] << 8) +
+			this.buffer[this.pointer - 1]
+		);
+
+		if((int & 0x80000000) > 0) {
+			return 0x80000000 - (int & 0x7fffffff);
+		}
+		return int;
 	}
 
 	public function readBool(): Bool {
 		return this.read8() == 1;
 	}
-	public function read16(): Int {
-		return this.read8() << 8 | this.read8(); 
-	}
-
-	public function read24(): Int {
-		return this.read8() << 16 | this.read16();
-	}
-
-	public function read32(): UInt {
-		return this.read8() << 24 | this.read24();
-	}
-
-	public function readBytes(length: Int, start: Int = -1, end: Int = -1): Uint8Array {
-		this.overflow(length);
-		this.read_position += length;
-		return this.buffer.subarray(start == -1 ? this.read_position - length : start, end == -1 ? this.length : end);
-	}
-
-	public function readRawString(size: UInt): String {
-		this.overflow(size);
-		this.read_position += size;
-		return new TextDecoder().decode(this.buffer.subarray(this.read_position - size, this.read_position));
-	}
 
 	public function readString(): String {
-		return this.readRawString(this.read16());
+		var length: Int = this.read16();
+
+		this.read(length);
+		return Utils.bufferToString(
+			this.buffer.slice(this.pointer - length, this.pointer)
+		);
+	}
+
+	public function readLongString(): String {
+		var length: Int = this.read24();
+
+		this.read(length);
+		return Utils.bufferToString(
+			this.buffer.slice(this.pointer - length, this.pointer)
+		);
 	}
 
 	public function readBigString(): String {
-		return this.readRawString(this.read32());
-	}
+		var length: Int = this.read32();
 
-	private function overflow(size: UInt): Void {
-		if (this.read_position + size > this.length)
-			throw new Error('Packet overflow');
-	}
-
-	private function expand(size: Int): Void {
-		this.length = this.write_position + size;
-		if (this.length > this.buffer.length) {
-			var buff: Uint8Array = new Uint8Array(this.length);
-			buff.set(this.buffer);
-			this.buffer = buff;
-		}
-	}
-
-	public function export(fingerprint: Int): ArrayBuffer {
-		var pack: Packet = new Packet();
-		var size: Int = this.length;
-		var sizeType: Int = size >>> 7;
-		while (sizeType != 0) {
-			pack.write8(size & 0x7F | 0x80);
-			size = sizeType;
-			sizeType >>= 7;
-		}
-		pack.write8(size & 0x7F);
-		pack.write8(fingerprint);
-		var ret: Packet = new Packet();
-		ret.writeBytes(pack.buffer).writeBytes(this.buffer);
-		return ret.buffer.buffer;
+		this.read(length);
+		return Utils.bufferToString(
+			this.buffer.slice(this.pointer - length, this.pointer)
+		);
 	}
 
 	public function toString(): String {
 		var s: String = '';
-		for (i in 0...this.buffer.length)
+		for (i in 0...this.length)
 			s += ( '0' + StringTools.hex(this.buffer[i])).substr(-2,2) + ' ';
 		
 		return s;
