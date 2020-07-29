@@ -1,4 +1,4 @@
-package packets.main.recv;
+package packets.bulle.recv;
 
 import connection.Connection;
 import utils.Packet;

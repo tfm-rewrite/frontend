@@ -42,7 +42,7 @@ class Protocol {
 					byte = this.buffer[this.start + i + 1];
 					this.expecting |= (byte & 127) << (i * 7);
 
-					if(!(byte & 0x80)) {
+					if((byte & 0x80) == 0) {
 						this.start += i + 2;
 						break;
 					}

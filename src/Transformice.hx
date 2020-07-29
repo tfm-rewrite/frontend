@@ -42,7 +42,7 @@ class Transformice extends Sprite {
 	public var playerList: Array<Player>;
 
 	public var pid: UInt;
-	public var bulleToken: UInt;
+	public static var bulleToken: UInt;
 
 	public var initializations = [
 		[
@@ -138,7 +138,7 @@ class Transformice extends Sprite {
 		return Transformice.defaultFrameRate;
 	}
 
-	public function on_data_received(buffer: Uint8Array, conn: Connection): Void {
+	public function on_data_received(buffer: ArrayBuffer, conn: Connection): Void {
 		var packet: Packet = new Packet(buffer);
 		var ccc: Int = packet.read16();
 
