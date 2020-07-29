@@ -23,7 +23,7 @@ class Packet {
 			this.readable = false;
 			this.ciphered = false;
 			this.allocated = 0;
-			this.allocate(size); // approximate size of the packet (to make this faster)
+			this.allocate(size, false); // approximate size of the packet (to make this faster)
 
 			if(cc == -1) {
 				this.write16(data); // ccc
@@ -54,7 +54,7 @@ class Packet {
 	/*         WRITE FUNCTIONS         */
 	/***********************************/
 
-	public function allocate(size: Int): Void {
+	public function allocate(size: Int, extra: Bool = true): Void {
 		// This function allocates extra bytes in the buffer
 		// We allocate `size` which is the needed size plus some extra bytes
 		// this way, we have the size to write the data we need and
@@ -62,7 +62,11 @@ class Packet {
 
 		// using a big number will make it faster, but use more memory (call less allocations)
 		// using a small number will make it slower, but use less memory (call more allocations)
-		this.allocated += size + 30;
+		if(extra) {
+			this.allocated += size + 30;
+		} else {
+			this.allocated += size;
+		}
 
 		data = this.buffer;
 		this.buffer = new Uint8Array(this.allocated);
