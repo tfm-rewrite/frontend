@@ -26,7 +26,9 @@ import box2D.dynamics.B2World;
 import flash.system.Capabilities;
 import flash.display.Sprite;
 import utils.AssetsManager;
+import js.lib.Uint8Array;
 
+import utils.Packet;
 import packets.main.MainHandler;
 import packets.bulle.BulleHandler;
 
@@ -41,10 +43,10 @@ class Transformice extends Sprite {
 	public var world: Sprite;
 	public var playerList: Array<Player>;
 
-	public var pid: Int;
+	public static var pid: Int;
 	public static var bulleToken: Int;
 
-	public var initializations = [
+	public var initializations: Array<Map<String, Dynamic>> = [
 		[
 			"name" => "resources",
 			"extra" => function() {
@@ -138,7 +140,7 @@ class Transformice extends Sprite {
 		return Transformice.defaultFrameRate;
 	}
 
-	public function on_data_received(buffer: ArrayBuffer, conn: Connection): Void {
+	public function on_data_received(buffer: Uint8Array, conn: Connection): Void {
 		var packet: Packet = new Packet(buffer);
 		var ccc: Int = packet.read16();
 
@@ -157,13 +159,13 @@ class Transformice extends Sprite {
 				new Packet(1, 1, 5)
 				.writeBool(false)
 				.writeBool(false)
-				.writeBool(this.isAzerty)
+				.writeBool(Transformice.isAzerty)
 			);
 		} else { // bulle
 			conn.send(
 				new Packet(1, 1, 10)
-				.write32(this.pid)
-				.write32(this.bulleToken)
+				.write32(Transformice.pid)
+				.write32(Transformice.bulleToken)
 			);
 		}
 	}
@@ -209,15 +211,15 @@ class Transformice extends Sprite {
 			return this.start();
 
 		var resource = this.initializations[index];
-		AssetLibrary.loadFromFile("../assets/swf/" + resource.name + ".bundle")
+		AssetLibrary.loadFromFile("../assets/swf/" + resource["name"] + ".bundle")
 		.onProgress(function(a: Int, b: Int) {
-			InterfaceDebug.setText("Initializing " + resource.name + "...");
+			InterfaceDebug.setText("Initializing " + resource["name"] + "...");
 		})
 		.onComplete(function(lib: AssetLibrary) {
-			Assets.registerLibrary(resource.name, lib);
-			AssetsManager.additional.push(resource.name);
-			resource.extra();
-			InterfaceDebug.setText("Initialized " + resource.name + ".");
+			Assets.registerLibrary(resource["name"], lib);
+			AssetsManager.additional.push(resource["name"]);
+			resource["extra"]();
+			InterfaceDebug.setText("Initialized " + resource["name"] + ".");
 
 			this.initializeResource(index + 1);
 		});

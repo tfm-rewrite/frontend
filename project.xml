@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
-	
-	<meta title="Transformice" package="com.transformice" version="1.0.0" />
-	<app main="Transformice" path="export" file="Transformice" />
-	
-	<window background="#6A7495" fps="61" />
-	<template path="./templates/html5/template/index.html" rename="index.html" />
-	<source path="src" />
-		
-	<haxelib name="openfl" />
-	<haxelib name="box2d" />
+    
+    <meta title="Transformice" package="com.transformice" version="1.0.0" />
+    <app main="Transformice" path="export" file="Transformice" />
+    
+    <window background="#6A7495" fps="61" />
+    <template path="./templates/html5/template/index.html" rename="index.html" />
+    <source path="src" />
+        
+    <haxelib name="openfl" />
+    <haxelib name="box2d" />
 
-	<assets path="assets/images" type="image" include="*.jpg|*.jpeg|*.png|*.gif|*.webp" />
-	<assets path="assets/sounds" exclude="*.mp3|*.wav"/>
+    <assets path="assets/images" type="image" include="*.jpg|*.jpeg|*.png|*.gif|*.webp" />
+    <assets path="assets/sounds" include="*.mp3|*.wav"/>
+    <assets path="assets" type="binary" include="*.css|*.ttf" />
 </project>

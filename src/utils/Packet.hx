@@ -19,10 +19,11 @@ class Packet {
 	public var allocated: Int;
 
 	public function new(data: Any = null, cc: Int = -1, size: Int = 2) {
-		if(std.isOfType(data, Int)) { // writable packet
+		if(Std.isOfType(data, Int)) { // writable packet
 			this.readable = false;
 			this.ciphered = false;
 			this.allocated = 0;
+			this.buffer = new Uint8Array(0);
 			this.allocate(size, false); // approximate size of the packet (to make this faster)
 
 			if(cc == -1) {
@@ -33,8 +34,8 @@ class Packet {
 		} else { // readable packet
 			this.readable = true;
 			this.pointer = 0;
-			this.length = data.length;
 			this.buffer = new Uint8Array(data); // ArrayBuffer to Uint8Array
+			this.length = this.buffer.length;
 		}
 	}
 
@@ -68,7 +69,7 @@ class Packet {
 			this.allocated += size;
 		}
 
-		data = this.buffer;
+		var data: Uint8Array = this.buffer;
 		this.buffer = new Uint8Array(this.allocated);
 		this.buffer.set(data, 0);
 	}
@@ -85,15 +86,15 @@ class Packet {
 	// These write functions support both signed and unsigned writes.
 	public function write8(byte: Int): Packet {
 		this.grow(1);
-		this.buffer[this.length - 1] = value & 0xff;
+		this.buffer[this.length - 1] = byte & 0xff;
 		return this;
 	}
 
 	public function write16(short: Int): Packet {
 		this.grow(2);
 
-		this.buffer[this.length - 2] = (value >> 8) & 0xff;
-		this.buffer[this.length - 1] = value & 0xff;
+		this.buffer[this.length - 2] = (short >> 8) & 0xff;
+		this.buffer[this.length - 1] = short & 0xff;
 
 		return this;
 	}
@@ -101,20 +102,20 @@ class Packet {
 	public function write24(word: Int): Packet {
 		this.grow(3);
 
-		this.buffer[this.length - 3] = (value >> 16) & 0xff;
-		this.buffer[this.length - 2] = (value >> 8) & 0xff;
-		this.buffer[this.length - 1] = value & 0xff;
+		this.buffer[this.length - 3] = (word >> 16) & 0xff;
+		this.buffer[this.length - 2] = (word >> 8) & 0xff;
+		this.buffer[this.length - 1] = word & 0xff;
 
 		return this;
 	}
 
-	public function write32(word: Int): Packet {
+	public function write32(int: Int): Packet {
 		this.grow(4);
 
-		this.buffer[this.length - 4] = (value >> 24) & 0xff;
-		this.buffer[this.length - 3] = (value >> 16) & 0xff;
-		this.buffer[this.length - 2] = (value >> 8) & 0xff;
-		this.buffer[this.length - 1] = value & 0xff;
+		this.buffer[this.length - 4] = (int >> 24) & 0xff;
+		this.buffer[this.length - 3] = (int >> 16) & 0xff;
+		this.buffer[this.length - 2] = (int >> 8) & 0xff;
+		this.buffer[this.length - 1] = int & 0xff;
 
 		return this;
 	}
@@ -130,7 +131,7 @@ class Packet {
 		}
 
 		this.write16(string.length);
-		this.buffer.set(Utils.stringToBytes(string), this.length);
+		this.buffer.set(Utils.stringToBuffer(string), this.length);
 		this.length += string.length;
 
 		return this;
@@ -143,7 +144,7 @@ class Packet {
 		}
 
 		this.write24(string.length);
-		this.buffer.set(Utils.stringToBytes(string), this.length);
+		this.buffer.set(Utils.stringToBuffer(string), this.length);
 		this.length += string.length;
 
 		return this;
@@ -156,7 +157,7 @@ class Packet {
 		}
 
 		this.write32(string.length);
-		this.buffer.set(Utils.stringToBytes(string), this.length);
+		this.buffer.set(Utils.stringToBuffer(string), this.length);
 		this.length += string.length;
 
 		return this;
@@ -207,7 +208,7 @@ class Packet {
 		// Throws an error if you can't.
 
 		this.pointer += size;
-		if(this.pointer >= this.length) {
+		if(this.pointer > this.length) {
 			throw new Error("Reading past packet end");
 		}
 	}

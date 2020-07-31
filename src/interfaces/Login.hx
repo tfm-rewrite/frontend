@@ -52,10 +52,10 @@ class Login extends Interface {
 
 		logo.element.innerHTML = '<a href="https://www.transformice.com">Transformice</a><a href="https://www.transformice.com">Transformice</a>';
 		var loginButton: Button = new Button(new TextField('Login', ['color' => 0xC2C2DA, 'align' => 'center']), function() {
-			Connection.main.send(new SetCommunity(Transformice.community.code));
+			Transformice.instance.main.send(new SetCommunity(Transformice.community.code));
 			if (username.element.reportValidity()) {
 				if (username.value.length >= 3 && username.value.length <= 25)
-					Connection.main.send(new LoginPacket(username.value, ''));
+					Transformice.instance.main.send(new LoginPacket(username.value, ''));
 			}
 		}, ['classes' => ['x_btn'], 'width' => main.width, 'x' => main.height - 20, 'y' => 12]);
 		

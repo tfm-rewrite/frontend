@@ -7,12 +7,12 @@ import js.html.TextDecoder;
 
 class Utils {
 	public static var useGitpod: Bool = true;
-	public static var gitpod: String = 'e014bc87-a989-478c-adba-b4ae3194e2e0.ws-eu01.gitpod.io/';
+	public static var gitpod: String = 'f840ce23-9f92-491c-906b-3d2ec8e8d88f.ws-eu01.gitpod.io/';
 	public static var host: String = '127.0.0.1';
 	public static var ports: Array<Int> = [6666];
 	public static var languagesURI: String = 'http://127.0.0.1:801/languages/';
 
-	public static var unicodeEncoder: TextEncoder = new TextEncoder("utf-8");
+	public static var unicodeEncoder: TextEncoder = new TextEncoder();
 	public static var unicodeDecoder: TextDecoder = new TextDecoder("utf-8");
 
 	public static function fromByteArray(array: Uint8Array): String {
@@ -39,6 +39,6 @@ class Utils {
 	}
 
 	public static function bufferToString(buffer: Uint8Array): String {
-		return Utils.unicodeEncoder.decode(string);
+		return Utils.unicodeDecoder.decode(buffer);
 	}
 }

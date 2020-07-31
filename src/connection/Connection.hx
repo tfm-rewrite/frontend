@@ -1,5 +1,6 @@
 package connection;
 
+import js.html.Blob;
 import utils.Packet;
 import js.Browser;
 import js.html.MessageEvent;
@@ -17,7 +18,7 @@ class Connection {
 
 	public var port: Int;
 
-	public var protocol: TFMProtocol;
+	public var protocol: Protocol;
 	public var transport: WebSocket;
 
 	public var open: Bool;
@@ -26,7 +27,7 @@ class Connection {
 		this.name = name;
 		this.client = client;
 
-		this.protocol = new TFMProtocol(this);
+		this.protocol = new Protocol(this);
 		this.sequenceId = 0;
 	}
 
@@ -36,13 +37,13 @@ class Connection {
 
 		if(gitpod) {
 			address = "wss://" + port + "-" + host;
-		} else if (this.secure) {
+		} else if (Connection.secure) {
 			address = "wss://" + host + ":" + port;
 		} else {
 			address = "ws://" + host + ":" + port;
 		}
 
-		this.transport = new WebSocket(this.address);
+		this.transport = new WebSocket(address);
 		this.transport.onmessage = this.on_message;
 		this.transport.onopen = this.on_connected;
 		this.transport.onerror = this.on_error;
@@ -65,7 +66,7 @@ class Connection {
 
 	public function on_message(msg: MessageEvent): Void {
 		if (Std.isOfType(msg.data, Blob)) {
-			msg.data.arrayBuffer().then(buff => {
+			msg.data.arrayBuffer().then(function(buff) {
 				this.protocol.data_received(buff);
 			});
 		}

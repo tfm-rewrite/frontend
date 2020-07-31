@@ -20,7 +20,7 @@ class Protocol {
 	public function orderBuffer(): Void {
 		if (this.start < this.end) { // if there are bytes to read
 			// we move the buffer to the start
-			var readable: Buffer = this.buffer.slice(this.start, this.end);
+			var readable: Uint8Array = this.buffer.slice(this.start, this.end);
 			this.buffer.set(readable, 0);
 		}
 		// we set the pointers to where the data is
@@ -29,8 +29,9 @@ class Protocol {
 	}
 
 	public function data_received(data: ArrayBuffer): Void {
-		this.buffer.set(data, this.end); // add data to the buffer
-		this.end += data.length; // and move the end pointer
+		var buffer: Uint8Array = new Uint8Array(data);
+		this.buffer.set(buffer, this.end); // add data to the buffer
+		this.end += buffer.length; // and move the end pointer
 
 		while(this.end - this.start > this.expecting) {
 			if (this.expecting == 0) {
@@ -39,11 +40,11 @@ class Protocol {
 						this.expecting = 0;
 						return;
 					}
-					byte = this.buffer[this.start + i + 1];
+					var byte: UInt = this.buffer[this.start + i];
 					this.expecting |= (byte & 127) << (i * 7);
 
 					if((byte & 0x80) == 0) {
-						this.start += i + 2;
+						this.start += i + 1;
 						break;
 					}
 				}
@@ -57,12 +58,17 @@ class Protocol {
 			}
 
 			if(this.end - this.start >= this.expecting) {
-				this.connection.client.on_data_received(
-					this.buffer.slice(this.start, this.start + this.expecting),
-					this.connection
-				);
+				trace("packet", this.buffer.slice(this.start, this.start + this.expecting));
+				var start: UInt = this.start;
+				var expecting: UInt = this.expecting;
+
 				this.start += this.expecting;
 				this.expecting = 0;
+
+				this.connection.client.on_data_received(
+					this.buffer.slice(start, start + expecting),
+					this.connection
+				);
 			}
 		}
 	}

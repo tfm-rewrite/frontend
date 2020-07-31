@@ -10,10 +10,10 @@ import packets.bulle.recv.MapInfo;
 import packets.bulle.recv.Sync;
 
 class BulleHandler {
-	public static var packets: Map<Int, (Connection, Packet) -> Void>;
+	public static var packets: Map<Int, (Connection, Packet) -> Void> = [];
 
 	public function new() {
-		var packetInitializers = [
+		var packetInitializers: Array<Dynamic> = [
 			// C 1
 			PingRequest,
 			LatencyResponse,
@@ -38,14 +38,14 @@ class BulleHandler {
 		];
 
 		for(i in 0 ... packetInitializers.length) {
-			this.packets[packetInitializers[i].ccc] = packetInitializers[i].handle;
+			BulleHandler.packets[packetInitializers[i].ccc] = packetInitializers[i].handle;
 		}
 	}
 
 	public function handle(conn: Connection, ccc: Int, packet: Packet) {
-		if (this.packets[ccc] != null) {
+		if (BulleHandler.packets[ccc] != null) {
 			// it'd be better to use a separate thread or something to run this
-			this.packets[ccc](conn, packet);
+			BulleHandler.packets[ccc](conn, packet);
 		}
 	}
 }

@@ -2,6 +2,7 @@ package packets.main.recv;
 
 import connection.Connection;
 import utils.Packet;
+import utils.Utils;
 
 // C 3
 
@@ -19,13 +20,13 @@ class SwitchBulle {
 		if(host == "127.0.0.1")
 			host = Utils.host; // use main host
 
-		this.bulle = new Connection("bulle", Transformice.instance);
+		Transformice.instance.bulle = new Connection("bulle", Transformice.instance);
 		for(index in 0...ports.length) {
 			try {
 				if(Utils.useGitpod)
-					this.bulle.connect(Utils.gitpod, ports[index], true);
+					Transformice.instance.bulle.connect(Utils.gitpod, ports[index], true);
 				else
-					this.bulle.connect(host, ports[index], false);
+					Transformice.instance.bulle.connect(host, ports[index], false);
 
 				return;
 			} catch (err) {

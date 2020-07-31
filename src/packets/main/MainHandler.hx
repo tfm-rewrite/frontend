@@ -8,10 +8,10 @@ import packets.main.recv.Login;
 import packets.main.recv.Bulle;
 
 class MainHandler {
-	public static var packets: Map<Int, (Connection, Packet) -> Void>;
+	public static var packets: Map<Int, (Connection, Packet) -> Void> = [];
 
 	public function new() {
-		var packetInitializers = [
+		var packetInitializers: Array<Dynamic> = [
 			// C 1 (Information)
 			CorrectIdentification,
 			PingRequest,
@@ -28,14 +28,14 @@ class MainHandler {
 		];
 
 		for(i in 0 ... packetInitializers.length) {
-			this.packets[packetInitializers[i].ccc] = packetInitializers[i].handle;
+			MainHandler.packets[packetInitializers[i].ccc] = packetInitializers[i].handle;
 		}
 	}
 
 	public function handle(conn: Connection, ccc: Int, packet: Packet) {
-		if (this.packets[ccc] != null) {
+		if (MainHandler.packets[ccc] != null) {
 			// it'd be better to use a separate thread or something to run this
-			this.packets[ccc](conn, packet);
+			MainHandler.packets[ccc](conn, packet);
 		}
 	}
 }
