@@ -152,7 +152,19 @@ class Transformice extends Sprite {
 	public function on_connection_made(conn: Connection): Void {
 		if(conn.name == "main") {
 			InterfaceDebug.hide();
+
+			conn.send(
+				new Packet(1, 1, 5)
+				.writeBool(false)
+				.writeBool(false)
+				.writeBool(this.isAzerty)
+			);
 		} else { // bulle
+			conn.send(
+				new Packet(1, 1, 10)
+				.write32(this.pid)
+				.write32(this.bulleToken)
+			);
 		}
 	}
 
