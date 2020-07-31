@@ -18,7 +18,7 @@ class Packet {
 	public var ciphered: Bool;
 	public var allocated: Int;
 
-	public function new(data: Any = null, cc: Int = -1, size: Int = 0) {
+	public function new(data: Any = null, cc: Int = -1, size: Int = 2) {
 		if(std.isOfType(data, Int)) { // writable packet
 			this.readable = false;
 			this.ciphered = false;
