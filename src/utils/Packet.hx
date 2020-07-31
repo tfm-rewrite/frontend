@@ -255,7 +255,7 @@ class Packet {
 		);
 
 		if((byte & 0x80) > 0) {
-			return 0x80 - (byte & 0x7f); // invert the bits
+			return -0x80 + (byte & 0x7f); // invert the bits
 		}
 		return byte;
 	}
@@ -268,7 +268,7 @@ class Packet {
 		);
 
 		if((short & 0x8000) > 0) {
-			return 0x8000 - (short & 0x7fff);
+			return -0x8000 + (short & 0x7fff);
 		}
 		return short;
 	}
@@ -282,7 +282,7 @@ class Packet {
 		);
 
 		if((word & 0x800000) > 0) {
-			return 0x800000 - (word & 0x7fffff);
+			return -0x800000 + (word & 0x7fffff);
 		}
 		return word;
 	}
@@ -297,7 +297,7 @@ class Packet {
 		);
 
 		if((int & 0x80000000) > 0) {
-			return 0x80000000 - (int & 0x7fffffff);
+			return -0x80000000 + (int & 0x7fffffff);
 		}
 		return int;
 	}
