@@ -49,14 +49,18 @@ class Connection {
 		this.transport.onclose = this.on_close;
 	}
 
-	public function send(packet: Packet): Void {
-		if(!this.open)
+	public function send(packet: Packet, destroy: Bool = true): Void {
+		if(!this.open) {
+			if(destroy)
+				packet.destroy();
 			return;
+		}
 
 		this.transport.send(packet.export(this.sequenceId));
 		this.sequenceId = (this.sequenceId + 1) % 256;
 
-		packet.destroy();
+		if(destroy)
+			packet.destroy();
 	}
 
 	public function on_message(msg: MessageEvent): Void {
