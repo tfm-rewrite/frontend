@@ -36,7 +36,7 @@ class PlayerList {
 		for(i in 0...quantity) {
 			var pid: Int = packet.read32();
 			var name: String = packet.readString();
-			var score: Int = packet.read16(); // note: has to be signed
+			var score: Int = packet.readS16();
 
 			// do something with the player
 		}

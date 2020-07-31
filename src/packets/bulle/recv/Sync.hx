@@ -10,10 +10,10 @@ class Movement {
 
 	public static function handle(conn: Connection, packet: Packet) {
 		var pid: Int = packet.read32();
-		var x: Int = packet.read16();
-		var y: Int = packet.read16();
-		var vx: Int = packet.read16();
-		var vy: Int = packet.read16();
+		var x: Int = packet.readS16();
+		var y: Int = packet.readS16();
+		var vx: Int = packet.readS16();
+		var vy: Int = packet.readS16();
 
 		// move the player
 	}
