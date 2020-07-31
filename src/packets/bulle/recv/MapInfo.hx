@@ -9,7 +9,7 @@ class ChangeMap {
 	public static var ccc: Int = 4 << 8 | 1;
 
 	public static function handle(conn: Connection, packet: Packet) {
-		var code: UInt = packet.read32();
+		var code: Int = packet.read32();
 		var author: String = packet.readString();
 		var perm: Int = packet.read8();
 		var flipped: Bool = packet.readBool();

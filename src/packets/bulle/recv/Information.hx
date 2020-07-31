@@ -17,6 +17,6 @@ class LatencyResponse {
 	public static var ccc: Int = 1 << 8 | 3;
 
 	public static function handle(conn: Connection, packet: Packet) {
-		var latency: UInt = packet.read32();
+		var latency: Int = packet.read32();
 	}
 }

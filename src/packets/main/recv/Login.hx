@@ -10,9 +10,9 @@ class CorrectLogin {
 
 	public static function handle(conn: Connection, packet: Packet) {
 		var name: String = packet.readString();
-		var id: UInt = packet.read32();
-		var pid: UInt = packet.read32();
-		var ranks: UInt = packet.read32();
+		var id: Int = packet.read32();
+		var pid: Int = packet.read32();
+		var ranks: Int = packet.read32();
 
 		Transformice.pid = pid;
 		// remove login screen, show basic interface (chat)

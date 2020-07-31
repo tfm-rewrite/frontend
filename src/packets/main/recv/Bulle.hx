@@ -12,7 +12,7 @@ class SwitchBulle {
 		var host: String = packet.readString();
 		var quantity: Int = packet.read8();
 		var ports: Array<Int> = [for(i in 0...quantity) packet.read16()];
-		var token: String = packet.readString();
+		var token: Int = packet.read32();
 
 		Transformice.bulleToken = token;
 

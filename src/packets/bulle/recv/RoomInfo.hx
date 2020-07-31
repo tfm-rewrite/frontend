@@ -20,7 +20,7 @@ class PlayerUpdate {
 
 	public static function handle(conn: Connection, packet: Packet) {
 		var inRoom: Bool = packet.readBool();
-		var pid: UInt = packet.read32();
+		var pid: Int = packet.read32();
 		var name: String = packet.readString();
 
 		// update the player
@@ -34,7 +34,7 @@ class PlayerList {
 		var quantity: Int = packet.read16();
 		
 		for(i in 0...quantity) {
-			var pid: UInt = packet.read32();
+			var pid: Int = packet.read32();
 			var name: String = packet.readString();
 			var score: Int = packet.read16(); // note: has to be signed
 

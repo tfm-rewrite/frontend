@@ -41,8 +41,8 @@ class Transformice extends Sprite {
 	public var world: Sprite;
 	public var playerList: Array<Player>;
 
-	public var pid: UInt;
-	public static var bulleToken: UInt;
+	public var pid: Int;
+	public static var bulleToken: Int;
 
 	public var initializations = [
 		[
