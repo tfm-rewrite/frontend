@@ -1,5 +1,7 @@
 package packets.main.recv;
 
+import utils.Language;
+import utils.Community;
 import connection.Connection;
 import utils.Packet;
 
@@ -11,8 +13,13 @@ class CorrectIdentification {
 	public static function handle(conn: Connection, packet: Packet) {
 		var community: String = packet.readString();
 		var country: String = packet.readString();
-
-		// show login screen
+		Transformice.loadingWindow.toggle();
+		Interface.list['login'].render();
+		Transformice.community = Lambda.find(Community.list, commu -> commu.code == community.toLowerCase());
+		if (Transformice.community == null)
+			Transformice.community = Community.ENGLISH;
+		Transformice.language = Language.list[Transformice.community.lang];
+		Transformice.language.load();
 	}
 }
 

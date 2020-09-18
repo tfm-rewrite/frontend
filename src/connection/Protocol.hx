@@ -58,7 +58,6 @@ class Protocol {
 			}
 
 			if(this.end - this.start >= this.expecting) {
-				trace("packet", this.buffer.slice(this.start, this.start + this.expecting));
 				var start: UInt = this.start;
 				var expecting: UInt = this.expecting;
 

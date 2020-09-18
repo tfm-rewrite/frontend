@@ -1,11 +1,14 @@
 package connection;
 
+// import utils.InterfaceDebug;
+import haxe.Json;
+import js.html.CloseEvent;
+import js.lib.Promise;
 import js.html.Blob;
 import utils.Packet;
 import js.Browser;
 import js.html.MessageEvent;
 import js.html.WebSocket;
-import js.lib.ArrayBuffer;
 import js.html.Event;
 
 class Connection {
@@ -31,23 +34,32 @@ class Connection {
 		this.sequenceId = 0;
 	}
 
-	public function connect(host: String, port: Int, gitpod: Bool): Void {
+	public function connect(host: String, port: Int, gitpod: Bool): Promise<WebSocket> {
 		var address: String;
 		this.port = port;
-
-		if(gitpod) {
-			address = "wss://" + port + "-" + host;
-		} else if (Connection.secure) {
-			address = "wss://" + host + ":" + port;
-		} else {
-			address = "ws://" + host + ":" + port;
-		}
-
-		this.transport = new WebSocket(address);
-		this.transport.onmessage = this.on_message;
-		this.transport.onopen = this.on_connected;
-		this.transport.onerror = this.on_error;
-		this.transport.onclose = this.on_close;
+		return new Promise(function(resolve: (WebSocket) -> Void, reject: (Dynamic) -> Void) {
+			if (gitpod) 
+				address = 'wss://${port}-${host}';
+			else if (Connection.secure)
+				address = 'wss://${host}:${port}';
+			else
+				address = 'ws://${host}:${port}';
+			this.transport = new WebSocket(address);
+			this.transport.onopen = (event: Event) -> {
+				var ws: WebSocket = cast event.target;
+				resolve(ws);
+				ws.removeEventListener('error', ws.onerror);
+				this.on_connected(event);
+				ws.onclose = this.on_close;
+				ws.onmessage = this.on_message;
+				ws.onerror = this.on_error;
+			}
+			this.transport.onerror = (event: Event) -> {
+				var target: WebSocket = cast event.target;
+				if (target.readyState != 1)
+					reject("Couldn't connect to server.");
+			}
+		});
 	}
 
 	public function send(packet: Packet, destroy: Bool = true): Void {

@@ -1,5 +1,8 @@
 package packets.main.recv;
 
+import utils.Language;
+import js.html.InputElement;
+import js.Browser;
 import connection.Connection;
 import utils.Packet;
 
@@ -15,7 +18,9 @@ class CorrectLogin {
 		var ranks: Int = packet.read32();
 
 		Transformice.pid = pid;
-		// remove login screen, show basic interface (chat)
+		for (interf in Interface.list.keyValueIterator())
+			interf.value.destroy();
+		Interface.list['gameplay'].render();
 	}
 }
 
@@ -24,6 +29,17 @@ class IncorrectLogin {
 
 	public static function handle(conn: Connection, packet: Packet) {
 		var code: Int = packet.read8();
+		Interface.list['grayscale'].destroy();
+		var inp: InputElement = cast Browser.document.getElementById('inp_password');
+		switch code {
+			case 0: /* Already logged in */
+				inp.setCustomValidity(Language.message('already_logged'));
+				inp.reportValidity();
+			case 1: /* Invalid details */
+				inp.setCustomValidity(Language.message('invalid_details'));
+				inp.reportValidity();
+		}
+		inp.value = '';
 	}
 }
 
@@ -32,5 +48,13 @@ class RegisterResult {
 
 	public static function handle(conn: Connection, packet: Packet) {
 		var code: Int = packet.read8();
+		Interface.list['grayscale'].destroy();
+		var inp: InputElement = cast Browser.document.getElementById('inp_username');
+		switch code {
+			case 0: /* Nickname already taken */
+				inp.setCustomValidity(Language.message('nickname_taken'));
+				inp.reportValidity();
+		}
+		inp.value = '';
 	}
 }

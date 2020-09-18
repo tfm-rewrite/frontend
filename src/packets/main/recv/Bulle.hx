@@ -21,17 +21,23 @@ class SwitchBulle {
 			host = Utils.host; // use main host
 
 		Transformice.instance.bulle = new Connection("bulle", Transformice.instance);
-		for(index in 0...ports.length) {
-			try {
-				if(Utils.useGitpod)
-					Transformice.instance.bulle.connect(Utils.gitpod, ports[index], true);
-				else
-					Transformice.instance.bulle.connect(host, ports[index], false);
+		startConnection(host, ports, 0);
+	}
+	
+	private static function startConnection(host: String, ports: Array<Int>, index: Int): Void {
+		if (index < Utils.ports.length) {
+			Transformice.instance.bulle.connect(Utils.useGitpod ? Utils.gitpod : host, ports[index], Utils.useGitpod)
+				.then(ws -> {
+					/* Connected */
+				})
+				.catchError(err -> {
+					/* Failed */
+					startConnection(host, ports, index + 1);
+				});
+		} else {
+			/* Couldn't connect to servers */
+		} 
 
-				return;
-			} catch (err) {
-			}
-		}
 	}
 }
 

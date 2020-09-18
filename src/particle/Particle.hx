@@ -8,7 +8,6 @@ import openfl.display.Bitmap;
 
 class Particle extends Bitmap {
 
-	public var zero: Zero;
 	public var image: Image;
 	public var imageIndex: Int = 0;
 	public var isLoop: Bool = false;
@@ -19,6 +18,8 @@ class Particle extends Bitmap {
 	private var lastSecond: Int = Lib.getTimer();
 	private var now: Int = 0;
 	private var counter: Int = 0;
+
+	@:isVar public var zero(get, set): Zero;
 
 	public function new(zero: Zero, loop: Bool = true, width: Int = 0, height: Int = 0, frameRate: Float = 30) {
 		super();
@@ -41,6 +42,18 @@ class Particle extends Bitmap {
 			}
 			this.draw();
 		}
+	}
+
+	public function get_zero(): Zero {
+		return this.zero;
+	}
+
+	public function set_zero(zero: Zero): Zero {
+		if (this.zero != null)
+			this.zero.target.removeEventListener(Event.ENTER_FRAME, this.onEnterFrame);
+		this.zero = zero;
+		this.zero.target.addEventListener(Event.ENTER_FRAME, this.onEnterFrame);
+		return this.zero;
 	}
 
 	public function draw(): Void {

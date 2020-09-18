@@ -39,6 +39,7 @@ class Packet {
 		}
 	}
 
+
 	public function destroy() {
 		this.length = 0;
 		this.buffer = new Uint8Array(0);
@@ -124,6 +125,16 @@ class Packet {
 		return this.write8(bool ? 1 : 0);
 	}
 
+	public function writeBuffer(buffer: Uint8Array) {
+		this.grow(buffer.length);
+		this.buffer.set(buffer, this.length - buffer.length);
+		return this;
+	}
+	    
+	public function writeRawString(string: String) {
+		return this.writeBuffer(Utils.stringToBuffer(string));
+	}
+
 	public function writeString(string: String): Packet {
 		var desired: Int = this.length + string.length + 2;
 		if(desired > this.allocated) {
@@ -194,7 +205,11 @@ class Packet {
 
 		var packet: Uint8Array = new Uint8Array(header.length + this.length);
 		packet.set(header, 0);
-		packet.set(this.buffer, header.length);
+		if(this.allocated > this.length) {
+			packet.set(this.buffer.slice(0, this.length), header.length);
+		} else {
+			packet.set(this.buffer, header.length);
+		}
 		return packet;
 	}
 

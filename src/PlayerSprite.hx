@@ -9,7 +9,6 @@ class PlayerSprite extends Sprite {
 
 	public var player: Player;
 	@:isVar public var scale(get, set): Float = 1.2;
-	private var zero: Zero;
 	private var particle: Particle;
 	private var clip: MovieClip;
 	
@@ -23,11 +22,14 @@ class PlayerSprite extends Sprite {
 		Transformice.instance.world.addChild(this);
 	}
 
-	public function playAnimation(animName: String, statique: Bool = false, frameRate: Float = 0): Void {
+	public function playAnimation(animName: String, statique: Bool = false): Void {
 		this.clip = PlayerAnim.getAnim('animations', 16, animName);
 		this.clip.scaleX = this.clip.scaleY = this.scale;
-		this.zero = new Zero(this.clip, !statique);
-		this.particle = new Particle(this.zero, true, 100, 75, frameRate == 0 ? Transformice.defaultFrameRate : frameRate);
+		var zero: Zero = new Zero(this.clip, !statique);
+		if (this.particle == null)
+			this.particle = new Particle(zero, true, 100, 75, Transformice.defaultFrameRate);
+		else
+			this.particle.zero = zero;
 		this.removeChildAt(0);
 		this.addChildAt(this.particle, 0);
 	}
@@ -37,8 +39,9 @@ class PlayerSprite extends Sprite {
 	}
 
 	public function set_scale(value: Float): Float {
+		this.scale = value;
 		this.playAnimation('AnimStatique');
-		return this.scale = value;
+		return this.scale;
 	}
 	
 

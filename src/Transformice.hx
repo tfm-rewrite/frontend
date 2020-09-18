@@ -1,27 +1,21 @@
 package;
 
+import utils.Language;
+import utils.DebugPanel;
+import ui.TextField;
+import ui.Window;
+import openfl.Lib;
+import openfl.events.KeyboardEvent;
 import box2D.dynamics.B2DebugDraw;
-import openfl.display.DisplayObject;
 import box2D.dynamics.B2Body;
-import openfl.utils.AssetManifest;
-import map.Ground;
-import haxe.CallStack;
-import haxe.Exception;
 import utils.Utils;
 import connection.Connection;
-import interfaces.Login;
 import openfl.events.Event;
-import openfl.net.URLLoader;
 import utils.Community;
-import openfl.net.URLRequest;
 import map.MapCustomization;
 import openfl.utils.AssetLibrary;
 import openfl.utils.Assets;
-import openfl.utils.AssetType;
-import openfl.system.Security;
-import utils.InterfaceDebug;
 import box2D.common.math.B2Vec2;
-import openfl.Lib;
 import box2D.dynamics.B2World;
 import flash.system.Capabilities;
 import flash.display.Sprite;
@@ -36,12 +30,35 @@ class Transformice extends Sprite {
 	public static var instance: Transformice;
 	public static var isAzerty: Bool = Capabilities.language.toLowerCase() == 'fr';
 	public static var community: Community = Community.ENGLISH;
+	public static var language: Language = Language.list[Community.ENGLISH.lang];
+	public static var loadingWindow: Window = {
+		var win: Window = new Window([
+			'size' => { width: 300, height: 200 }
+		]);
+		win.setAttribute('class', 'x_window');
+		var tf: TextField = new TextField('p', '', [
+			'size' => {
+				width: win.size.width,
+				height: win.size.height
+			}
+		]);
+		tf.style.textAlign = 'center';
+		tf.style.wordBreak = 'break-word';
+		tf.style.verticalAlign = 'middle';
+		tf.style.display = 'table-cell';
+		win.addChild(tf);
+		win.style.padding = '10px';
+		
+		win;
+	}
 	@:isVar public static var defaultFrameRate(get, set): Float = 30;
 	
 
 	public var physicWorld: B2World;
 	public var world: Sprite;
 	public var playerList: Array<Player>;
+	public var cheatCode: String = '';
+	public var cheatCodeTime: Int = Lib.getTimer();
 
 	public static var pid: Int;
 	public static var bulleToken: Int;
@@ -49,34 +66,32 @@ class Transformice extends Sprite {
 	public var initializations: Array<Map<String, Dynamic>> = [
 		[
 			"name" => "resources",
-			"extra" => function() {
+			"extra" => () -> {
 			}
 		],
 		[
 			"name" => "transformice",
-			"extra" => function() {
-			}
-		],
-		[
-			"name" => "mapictures",
-			"extra" => function() {
-				MapCustomization.initialization();
+			"extra" => () -> {
 			}
 		],
 		[
 			"name" => "equipments",
-			"extra" => function() {
+			"extra" => () -> {
 			}
 		],
 		[
 			"name" => "furs",
-			"extra" => function() {
+			"extra" => () -> {
 			}
 		],
 		[
 			"name" => "animations",
-			"extra" => function() {
+			"extra" => () -> {
 			}
+		],
+		[
+			"name" => "mapictures",
+			"extra" => MapCustomization.initialization
 		]
 	];
 
@@ -90,6 +105,12 @@ class Transformice extends Sprite {
 		super();
 
 		Transformice.instance = this;
+
+		new interfaces.Login();
+		new interfaces.Grayscale();
+		new interfaces.Register();
+		new interfaces.Gameplay();
+
 		this.main = new Connection("main", this);
 
 		this.mainHandler = new MainHandler();
@@ -100,7 +121,7 @@ class Transformice extends Sprite {
 
 		stage.addChild(this.world);
 		stage.addEventListener(Event.ENTER_FRAME, this.onEnterFrame);
-
+		stage.addEventListener(KeyboardEvent.KEY_DOWN, this.onKeyDown);
 		var dbgDraw:B2DebugDraw = new B2DebugDraw();
 		var dbgSprite:Sprite = new Sprite();
 
@@ -113,7 +134,9 @@ class Transformice extends Sprite {
 		dbgDraw.setFlags(B2DebugDraw.e_shapeBit | B2DebugDraw.e_jointBit | B2DebugDraw.e_pairBit);
 
 		this.physicWorld.setDebugDraw(dbgDraw);
+	
 		this.initializationResources();
+		
 	}
 
 	private function onEnterFrame(event: Event): Void {
@@ -131,6 +154,25 @@ class Transformice extends Sprite {
 		this.physicWorld.drawDebugData();
 	}
 
+	private function onKeyDown(event: KeyboardEvent): Void {
+		if (String.fromCharCode(event.charCode) == '~' || this.cheatCode.indexOf('~') == 0) {
+			if (this.cheatCode.indexOf('~') == 0 && String.fromCharCode(event.charCode) == '~')
+				this.cheatCode = '';
+			if (Lib.getTimer() - this.cheatCodeTime < 1700 || this.cheatCode == '') {
+				this.cheatCodeTime = Lib.getTimer();
+				this.cheatCode += String.fromCharCode(event.charCode);
+			} else {
+				this.cheatCode = '';
+				this.cheatCodeTime = Lib.getTimer();
+				this.cheatCode += String.fromCharCode(event.charCode);
+			}
+			switch (this.cheatCode) {
+				case '~debug':
+					if (DebugPanel.instance != null)
+						DebugPanel.instance.toggle();
+			}
+		}
+	}
 
 	public static function set_defaultFrameRate(rate: Float): Float {
 		return Transformice.defaultFrameRate = Transformice.instance.stage.frameRate = rate;
@@ -152,58 +194,44 @@ class Transformice extends Sprite {
 	}
 
 	public function on_connection_made(conn: Connection): Void {
-		if(conn.name == "main") {
-			InterfaceDebug.hide();
-
+		if(conn.name == "main") 
 			conn.send(
 				new Packet(1, 1, 5)
 				.writeBool(false)
 				.writeBool(false)
 				.writeBool(Transformice.isAzerty)
 			);
-		} else { // bulle
+		else // bulle
 			conn.send(
 				new Packet(1, 1, 10)
 				.write32(Transformice.pid)
 				.write32(Transformice.bulleToken)
 			);
-		}
 	}
 
 	public function on_connection_lost(conn: Connection): Void {
-		if(conn.name == "main") {
-			this.bulle.close();
-
-			Interface.list.map(function(inter) {
-				inter.element.remove();
-				return null;
-			});
-
+		if (conn.name == "main" && conn.open) {
+			if (this.bulle != null)
+				this.bulle.close();
+			for (interf in Interface.list.keyValueIterator())
+				interf.value.destroy();
 			this.world.removeChildren();
 			this.removeChildren();
-
-			InterfaceDebug.instance = null;
-			InterfaceDebug.display();
-			InterfaceDebug.setText("Connection lost.");
 		}
 	}
 
-	private function start(): Void {
-		for(index in 0...Utils.ports.length) {
-			try {
-				InterfaceDebug.setText("Connecting to port " + Utils.ports[index] + "...");
-
-				if(Utils.useGitpod)
-					this.main.connect(Utils.gitpod, Utils.ports[index], true);
-				else
-					this.main.connect(Utils.host, Utils.ports[index], false);
-
-				return;
-			} catch (err) {
-			}
-		}
-
-		InterfaceDebug.setText('Failed to connect to the servers.');
+	private function start(index: Int = 0): Void {
+		if (index < Utils.ports.length) {
+			setLoadingWindowText('Connecting to server port ${Utils.ports[index]}...');
+			this.main.connect(Utils.useGitpod ? Utils.gitpod : Utils.host, Utils.ports[index], Utils.useGitpod)
+				.then(ws -> {
+					/* Connected */
+				})
+				.catchError(err -> {
+					start(index + 1);
+				});
+		} else 
+			setLoadingWindowText('Cannot connect to the servers, they might be closed or under maintenance.');
 	}
 
 	private function initializeResource(index: Int): Void {
@@ -213,21 +241,28 @@ class Transformice extends Sprite {
 		var resource = this.initializations[index];
 		AssetLibrary.loadFromFile("../assets/swf/" + resource["name"] + ".bundle")
 		.onProgress(function(a: Int, b: Int) {
-			InterfaceDebug.setText("Initializing " + resource["name"] + "...");
+			setLoadingWindowText('Loading ${resource['name']}...');
+		})
+		.onError(function(err: Dynamic) {
 		})
 		.onComplete(function(lib: AssetLibrary) {
 			Assets.registerLibrary(resource["name"], lib);
 			AssetsManager.additional.push(resource["name"]);
 			resource["extra"]();
-			InterfaceDebug.setText("Initialized " + resource["name"] + ".");
-
 			this.initializeResource(index + 1);
 		});
 	}
 
+	public static function setLoadingWindowText(text: String): Void {
+		var textField: TextField = cast loadingWindow.childs[1];
+		textField.text = text;
+	}
+
 	private function initializationResources(): Void {
-		InterfaceDebug.display();
-		InterfaceDebug.setText("Initialization...");
+		DebugPanel.instance = new DebugPanel();
+		loadingWindow.render();
+		loadingWindow.centeralize();
+		
 		this.initializeResource(0);
 	}
 }
