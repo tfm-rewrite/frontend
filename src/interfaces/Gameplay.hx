@@ -10,13 +10,19 @@ class Gameplay extends Interface {
     }
 
     override public function run() {
+        var width = 800;
+        var height = 600;
+        
+        var xOffset = (Browser.document.body.offsetWidth - width) / 2;
+        var yOffset = (Browser.document.body.offsetHeight - height) / 2;
+        
         var chat: Element = new Element('div', [
             'size' => { width: 800, height: 210 },
-            'position' => { x: (Browser.document.body.offsetWidth-800)/2, y: ((Browser.document.body.offsetHeight-800)/2) + 400 }
+            'position' => { x: xOffset, y: yOffset + 400 }
         ]);
         var top: Element = new Element('div', [
             'size' => { width: 800, height: 30 },
-            'position' => { x: (Browser.document.body.offsetWidth-800)/2, y: (Browser.document.body.offsetHeight-800)/2 }
+            'position' => { x: xOffset, y: yOffset }
         ]);
         chat.addChild(new Element('img', [
             'position' => { x: 0, y: 10 },
